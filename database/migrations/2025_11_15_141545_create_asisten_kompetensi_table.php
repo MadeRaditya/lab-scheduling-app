@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('asisten_kompetensi', function (Blueprint $table) {
             $table->foreignId('id_asisten')->constrained('asistens', 'id_asisten')->onDelete('cascade');
-            $table->foreignId('id_kompetensi')->constrained('kompetensis')->onDelete('cascade');
+            $table->foreignId('id_kompetensi')->constrained('kompetensis', 'id_kompetensi')->onDelete('cascade');
             $table->string('tingkat_penguasaan', 20)->default('Menengah');
             $table->date('tanggal_sertifikasi')->nullable();
             $table->string('sertifikasi', 255)->nullable();

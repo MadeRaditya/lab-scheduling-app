@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('matakuliah_kompetensi', function (Blueprint $table) {
             $table->string('kode_mk', 10);
-            $table->foreignId('id_kompetensi')->constrained('kompetensis')->onDelete('cascade');
+            $table->foreignId('id_kompetensi')->constrained('kompetensis', 'id_kompetensi')->onDelete('cascade');
             $table->string('tingkat_dibutuhkan', 20)->default('Dasar');
             $table->integer('prioritas')->default(1)->comment('1: Wajib, 2:Disarankan, 3: Opsional');
             $table->primary(['kode_mk', 'id_kompetensi']);

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('kendala_asisten', function (Blueprint $table) {
             $table->id('id_kendala');
-            $table->foreignId('id_asisten')->constrained('asistens')->onDelete('cascade');
-            $table->foreignId('id_semester')->constrained('semesters')->onDelete('cascade');
+            $table->foreignId('id_asisten')->constrained('asistens', 'id_asisten')->onDelete('cascade');
+            $table->foreignId('id_semester')->constrained('semesters', 'id_semester')->onDelete('cascade');
             $table->string('tipe_kendala', 50)->default('Lainnya');
             $table->string('hari', 20)->nullable();
             $table->date('tanggal_mulai')->nullable();
