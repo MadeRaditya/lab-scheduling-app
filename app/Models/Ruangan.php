@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\RuanganKategori;
+use App\Enums\RuanganStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +16,11 @@ class Ruangan extends Model
     public $timestamps = true;
     protected $fillable =
     ['nama_ruangan', 'gedung', 'lantai', 'kapasitas', 'kategori', 'status'];
+
+    protected $casts = [
+        'kategori' => RuanganKategori::class,
+        'status' => RuanganStatus::class,
+    ];
     public function jadwalLabs(): HasMany
     {
         return $this->hasMany(JadwalLab::class, 'id_ruangan');

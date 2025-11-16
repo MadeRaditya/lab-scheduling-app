@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('asistens', function (Blueprint $table) {
             $table->id('id_asisten');
             $table->string('nama', 100);
-            $table->string('nim', 20)->unique();
+            $table->string('npm', 20)->unique();
             $table->string('email', 100)->unique();
             $table->string('password');
             $table->string('no_telepon', 20)->nullable();

@@ -18,6 +18,8 @@ class Semester extends Model
     protected $fillable =
     ['nama_semester', 'tahun_ajaran', 'jenis', 'status', 'tanggal_mulai', 'tanggal_selesai'];
     protected $casts = [
+        'jenis' => SemesterJenis::class,
+        'status' => SemesterStatus::class,
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
     ];

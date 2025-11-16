@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             JamOperasionalLabSeeder::class,
+            RuanganSeeder::class,
         ]);
 
         User::factory()->create([

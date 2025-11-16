@@ -14,7 +14,7 @@ class Asisten extends Authenticatable
     protected $primaryKey = 'id_asisten';
     public $timestamps = true;
     protected $fillable =
-    ['nama', 'nim', 'email', 'password', 'no_telepon', 'status_aktif'];
+    ['nama', 'npm', 'email', 'password', 'no_telepon', 'status_aktif'];
     protected $hidden = ['password', 'remember_token'];
     protected $casts = ['status_aktif' => 'boolean', 'tanggal_daftar' =>
     'datetime'];
