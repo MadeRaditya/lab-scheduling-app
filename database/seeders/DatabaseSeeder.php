@@ -18,11 +18,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('test1234'),
-            'created_at' => now(),
-            'updated_at' => now(),
+            "name" => "admin",
+            "email" => "admin@mail.com",
+            "email_verified_at" => null,
+            "password" => bcrypt("admin1234"),
+            "two_factor_secret" => null,
+            "two_factor_recovery_codes" => null,
+            "two_factor_confirmed_at" => null,
+            "remember_token" => null,
+            "created_at" => now(),
+            "updated_at" => now()
         ]);
     }
 }

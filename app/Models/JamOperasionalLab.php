@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\JamHari;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,5 +17,6 @@ class JamOperasionalLab extends Model
     protected $casts = [
         'jam_buka' => 'string',
         'jam_tutup' => 'string',
+        'hari' => JamHari::class,
     ];
 }
