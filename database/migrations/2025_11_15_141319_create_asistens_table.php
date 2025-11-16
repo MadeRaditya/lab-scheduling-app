@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id('id_asisten');
             $table->string('nama', 100);
             $table->string('npm', 20)->unique();
+            $table->string('jurusan', 100);
             $table->string('email', 100)->unique();
             $table->string('password');
             $table->string('no_telepon', 20)->nullable();
             $table->boolean('status_aktif')->default(true);
-            $table->timestamp('tanggal_daftar')->useCurrent();
+            $table->date('tanggal_daftar')->useCurrent();
             $table->rememberToken();
             $table->timestamps();
         });

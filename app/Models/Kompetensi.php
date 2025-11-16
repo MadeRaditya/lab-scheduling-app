@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\KategoriKompetensi;
+use App\Enums\LevelKompetensi;
+use App\Enums\PreferensiTingkat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,6 +16,10 @@ class Kompetensi extends Model
     protected $primaryKey = 'id_kompetensi';
     public $timestamps = true;
     protected $fillable = ['nama_kompetensi', 'deskripsi', 'kategori', 'level'];
+    protected $casts = [
+        'kategori' => KategoriKompetensi::class,
+        'level' => LevelKompetensi::class,
+    ];
     public function asistens(): BelongsToMany
     {
         return $this->belongsToMany(

@@ -19,6 +19,8 @@ class AsistensTable
                     ->searchable(),
                 TextColumn::make('npm')
                     ->searchable(),
+                TextColumn::make('jurusan')
+                    ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
@@ -27,7 +29,7 @@ class AsistensTable
                 IconColumn::make('status_aktif')
                     ->boolean(),
                 TextColumn::make('tanggal_daftar')
-                    ->dateTime()
+                    ->date()
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\JurusanAsisten;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,10 +15,12 @@ class Asisten extends Authenticatable
     protected $primaryKey = 'id_asisten';
     public $timestamps = true;
     protected $fillable =
-    ['nama', 'npm', 'email', 'password', 'no_telepon', 'status_aktif'];
+    ['nama', 'npm', 'jurusan', 'email', 'password', 'no_telepon', 'status_aktif'];
     protected $hidden = ['password', 'remember_token'];
-    protected $casts = ['status_aktif' => 'boolean', 'tanggal_daftar' =>
-    'datetime'];
+    protected $casts = [
+        'status_aktif' => 'boolean', 
+        'tanggal_daftar' =>'datetime',
+        'jurusan' => JurusanAsisten::class];
     public function kompetensis(): BelongsToMany
     {
         return $this->belongsToMany(

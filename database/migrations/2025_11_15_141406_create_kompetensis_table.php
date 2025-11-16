@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_kompetensi', 100);
             $table->text('deskripsi')->nullable();
             $table->string('kategori', 50);
-            $table->string('level', 20)->default('Dasar');
+            $table->string('level', 20)->default('dasar');
             $table->timestamps();
         });
     }
