@@ -16,8 +16,10 @@ class SemesterForm
         return $schema
             ->components([
                 TextInput::make('nama_semester')
+                    ->maxLength(100)
                     ->required(),
                 TextInput::make('tahun_ajaran')
+                    ->maxLength(20)
                     ->required(),
                 Select::make('jenis')
                     ->options(SemesterJenis::class)

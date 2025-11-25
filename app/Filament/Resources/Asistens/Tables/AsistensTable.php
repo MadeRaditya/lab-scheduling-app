@@ -21,6 +21,10 @@ class AsistensTable
                     ->searchable(),
                 TextColumn::make('jurusan')
                     ->searchable(),
+                TextColumn::make('kompetensis.nama_kompetensi')
+                    ->listWithLineBreaks()
+                    ->limitList(3) 
+                    ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),

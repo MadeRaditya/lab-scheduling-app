@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Asistens;
 use App\Filament\Resources\Asistens\Pages\CreateAsisten;
 use App\Filament\Resources\Asistens\Pages\EditAsisten;
 use App\Filament\Resources\Asistens\Pages\ListAsistens;
+use App\Filament\Resources\Asistens\RelationManagers\JadwalAsistenRelationManager;
+use App\Filament\Resources\Asistens\RelationManagers\KompetensiRelationManager;
 use App\Filament\Resources\Asistens\Schemas\AsistenForm;
 use App\Filament\Resources\Asistens\Tables\AsistensTable;
 use App\Models\Asisten;
@@ -18,7 +20,8 @@ class AsistenResource extends Resource
 {
     protected static ?string $model = Asisten::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Users;
+
 
     protected static ?string $recordTitleAttribute = 'Asisten Laboratorium';
 
@@ -35,7 +38,8 @@ class AsistenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            KompetensiRelationManager::class,
+            JadwalAsistenRelationManager::class,
         ];
     }
 

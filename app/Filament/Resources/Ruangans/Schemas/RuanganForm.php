@@ -15,8 +15,10 @@ class RuanganForm
         return $schema
             ->components([
                 TextInput::make('nama_ruangan')
+                    ->maxLength(100)
                     ->required(),
                 TextInput::make('gedung')
+                    ->maxLength(100)
                     ->default(null),
                 TextInput::make('lantai')
                     ->default(null),

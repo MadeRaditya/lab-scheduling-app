@@ -13,20 +13,16 @@ class KompetensiForm
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                TextInput::make('nama_kompetensi')
-                    ->required(),
-                Textarea::make('deskripsi')
-                    ->default(null)
-                    ->columnSpanFull(),
-                Select::make('kategori')
-                    ->options(KategoriKompetensi::class)
-                    ->required(),
-                Select::make('level')
-                    ->options(LevelKompetensi::class)
-                    ->required()
-                    ->default('Dasar'),
-            ]);
+        return $schema->components([
+            TextInput::make("nama_kompetensi")->required(),
+            Textarea::make("deskripsi")->default(null)->columnSpanFull(),
+            Select::make("kategori")
+                ->options(KategoriKompetensi::class)
+                ->required(),
+            Select::make("level")
+                ->options(LevelKompetensi::class)
+                ->required()
+                ->default("Dasar"),
+        ]);
     }
 }

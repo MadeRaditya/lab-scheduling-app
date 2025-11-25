@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Filament\Resources\AsistenSemesters;
+
+use App\Filament\Resources\AsistenSemesters\Pages\CreateAsistenSemester;
+use App\Filament\Resources\AsistenSemesters\Pages\EditAsistenSemester;
+use App\Filament\Resources\AsistenSemesters\Pages\ListAsistenSemesters;
+use App\Filament\Resources\AsistenSemesters\Schemas\AsistenSemesterForm;
+use App\Filament\Resources\AsistenSemesters\Tables\AsistenSemestersTable;
+use App\Models\AsistenSemester;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+
+class AsistenSemesterResource extends Resource
+{
+    protected static ?string $model = AsistenSemester::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::ClipboardDocumentCheck;
+
+    protected static ?string $recordTitleAttribute = 'Asisten aktif';
+
+    public static function form(Schema $schema): Schema
+    {
+        return AsistenSemesterForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return AsistenSemestersTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListAsistenSemesters::route('/'),
+            'create' => CreateAsistenSemester::route('/create'),
+            'edit' => EditAsistenSemester::route('/{record}/edit'),
+        ];
+    }
+}

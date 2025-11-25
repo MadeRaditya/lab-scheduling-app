@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -36,5 +37,10 @@ class Matakuliah extends Model
     public function jadwalFinals(): HasMany
     {
         return $this->hasMany(JadwalFinal::class, 'kode_mk');
+    }
+
+    public function semester(): BelongsTo
+    {
+        return $this->belongsTo(Semester::class, 'semester_berjalan');
     }
 }

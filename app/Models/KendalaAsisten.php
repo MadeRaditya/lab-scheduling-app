@@ -11,7 +11,7 @@ class KendalaAsisten extends Model
 {
     use HasFactory;
 
-    protected $table = 'kendala_asistens';
+    protected $table = 'kendala_asisten';
     protected $primaryKey = 'id_kendala';
     public $timestamps = true;
 

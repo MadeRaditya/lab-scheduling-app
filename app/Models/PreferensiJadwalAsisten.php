@@ -10,7 +10,7 @@ class PreferensiJadwalAsisten extends Model
 {
     use HasFactory;
 
-    protected $table = 'preferensi_jadwal_asistens';
+    protected $table = 'preferensi_jadwal_asisten';
     protected $primaryKey = 'id_preferensi';
     public $timestamps = true;
 

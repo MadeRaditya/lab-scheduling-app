@@ -10,7 +10,7 @@ class JadwalAsisten extends Model
 {
     use HasFactory;
 
-    protected $table = 'jadwal_asistens';
+    protected $table = 'jadwal_asisten';
     protected $primaryKey = 'id_jadwal_asisten';
     public $timestamps = true;
 

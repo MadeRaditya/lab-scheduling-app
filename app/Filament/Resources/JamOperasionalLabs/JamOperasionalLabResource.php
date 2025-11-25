@@ -18,7 +18,7 @@ class JamOperasionalLabResource extends Resource
 {
     protected static ?string $model = JamOperasionalLab::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Clock;
 
     protected static ?string $recordTitleAttribute = 'Jam Operasional Lab';
 
