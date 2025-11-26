@@ -42,7 +42,11 @@ class JadwalAsistenRelationManager extends RelationManager
                     ->seconds(false),
                 TimePicker::make('jam_selesai')->required()
                     ->seconds(false),
-                TextInput::make('jenis_kegiatan')->default('Kuliah')
+                Select::make('jenis_kegiatan')
+                ->options([
+                    'Kuliah'=>'Kuliah','Organisasi'=>'Organisasi','Pribadi'=>'Pribadi','Lainnya'=>'Lainnya'
+                ])
+                ->default('Kuliah')
                     ->required(),
                 TextInput::make('keterangan')
                     ->nullable(),

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Matakuliahs;
 use App\Filament\Resources\Matakuliahs\Pages\CreateMatakuliah;
 use App\Filament\Resources\Matakuliahs\Pages\EditMatakuliah;
 use App\Filament\Resources\Matakuliahs\Pages\ListMatakuliahs;
+use App\Filament\Resources\Matakuliahs\RelationManagers\KompetensiRelationManager;
 use App\Filament\Resources\Matakuliahs\Schemas\MatakuliahForm;
 use App\Filament\Resources\Matakuliahs\Tables\MatakuliahsTable;
 use App\Models\Matakuliah;
@@ -35,7 +36,7 @@ class MatakuliahResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            KompetensiRelationManager::class,
         ];
     }
 

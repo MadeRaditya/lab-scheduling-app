@@ -27,6 +27,10 @@ class MatakuliahsTable
                     ->searchable(),
                 TextColumn::make('semester.nama_semester')
                     ->sortable(),
+                TextColumn::make('kompetensis.nama_kompetensi')
+                    ->listWithLineBreaks()
+                    ->limitList(3) 
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

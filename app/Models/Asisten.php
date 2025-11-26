@@ -48,4 +48,9 @@ class Asisten extends Authenticatable
     {
         return $this->hasMany(PenugasanAsistenFinal::class, 'id_asisten');
     }
+
+    public function preferensiJadwalAsistens(): HasMany
+    {
+        return $this->hasMany(PreferensiJadwalAsisten::class, 'id_asisten');
+    }
 }

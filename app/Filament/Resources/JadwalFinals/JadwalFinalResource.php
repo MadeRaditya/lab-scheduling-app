@@ -5,6 +5,7 @@ namespace App\Filament\Resources\JadwalFinals;
 use App\Filament\Resources\JadwalFinals\Pages\CreateJadwalFinal;
 use App\Filament\Resources\JadwalFinals\Pages\EditJadwalFinal;
 use App\Filament\Resources\JadwalFinals\Pages\ListJadwalFinals;
+use App\Filament\Resources\JadwalFinals\RelationManagers\PenugasanAsistenFinalsRelationManager;
 use App\Filament\Resources\JadwalFinals\Schemas\JadwalFinalForm;
 use App\Filament\Resources\JadwalFinals\Tables\JadwalFinalsTable;
 use App\Models\JadwalFinal;
@@ -35,7 +36,7 @@ class JadwalFinalResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PenugasanAsistenFinalsRelationManager::class,
         ];
     }
 

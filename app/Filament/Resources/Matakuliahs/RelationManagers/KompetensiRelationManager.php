@@ -43,7 +43,7 @@ class KompetensiRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('nama_kompetensi')
             ->columns([
-                TextColumn::make('nama_kompetensi'),
+                TextColumn::make('nama_kompetensi')->label('Kompetensi')->sortable()->searchable(),
                 TextColumn::make('pivot.tingkat_dibutuhkan'),
                 TextColumn::make('pivot.prioritas')
                     ->formatStateUsing(fn($state) => match ($state) {
@@ -62,8 +62,8 @@ class KompetensiRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
-                AttachAction::make(),
+                // CreateAction::make(),
+                AttachAction::make()->preloadRecordSelect(),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -5,8 +5,11 @@ namespace App\Filament\Resources\Asistens;
 use App\Filament\Resources\Asistens\Pages\CreateAsisten;
 use App\Filament\Resources\Asistens\Pages\EditAsisten;
 use App\Filament\Resources\Asistens\Pages\ListAsistens;
+use App\Filament\Resources\Asistens\RelationManagers\AsistenSemesterRelationManager;
 use App\Filament\Resources\Asistens\RelationManagers\JadwalAsistenRelationManager;
+use App\Filament\Resources\Asistens\RelationManagers\KendalaAsistensRelationManager;
 use App\Filament\Resources\Asistens\RelationManagers\KompetensiRelationManager;
+use App\Filament\Resources\Asistens\RelationManagers\PreferensiJadwalAsistenRelationManager;
 use App\Filament\Resources\Asistens\Schemas\AsistenForm;
 use App\Filament\Resources\Asistens\Tables\AsistensTable;
 use App\Models\Asisten;
@@ -40,6 +43,9 @@ class AsistenResource extends Resource
         return [
             KompetensiRelationManager::class,
             JadwalAsistenRelationManager::class,
+            KendalaAsistensRelationManager::class,
+            PreferensiJadwalAsistenRelationManager::class,
+            AsistenSemesterRelationManager::class,
         ];
     }
 

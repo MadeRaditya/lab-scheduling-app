@@ -20,6 +20,7 @@ class AsistenSemestersTable
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('status')
+                    ->badge()
                     ->searchable(),
                 TextColumn::make('peran')
                     ->searchable(),
