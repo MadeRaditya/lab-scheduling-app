@@ -19,6 +19,7 @@ class JadwalAsistenResource extends Resource
     protected static ?string $model = JadwalAsisten::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDays;
+    protected static ?string $navigationLabel = 'Jadwal KRS Asisten';
 
     protected static ?string $recordTitleAttribute = 'Jadwal_Asisten';
 

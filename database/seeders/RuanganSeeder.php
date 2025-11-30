@@ -33,6 +33,8 @@ class RuanganSeeder extends Seeder
             // Lab Tambahan
             ['nama_ruangan' => 'Lab Dasar F', 'gedung' => 'F', 'lantai' => 1, 'kapasitas' => 40, 'kategori' => RuanganKategori::LAB_DASAR, 'status' => RuanganStatus::AKTIF],
             ['nama_ruangan' => 'Lab IAC', 'gedung' => 'B', 'lantai' => 1, 'kapasitas' => 40, 'kategori' => RuanganKategori::LABORATORIUM, 'status' => RuanganStatus::AKTIF],
+            ['nama_ruangan' => 'Lab Gambar DKV', 'gedung' => 'B', 'lantai' => 3, 'kapasitas' => 40, 'kategori' => RuanganKategori::LABORATORIUM, 'status' => RuanganStatus::AKTIF],
+            ['nama_ruangan' => 'Lab Dasar DKV', 'gedung' => 'B', 'lantai' => 3, 'kapasitas' => 40, 'kategori' => RuanganKategori::LABORATORIUM, 'status' => RuanganStatus::AKTIF],
         ];
 
         foreach ($rows as $r) {

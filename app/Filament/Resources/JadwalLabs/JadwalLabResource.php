@@ -5,6 +5,7 @@ namespace App\Filament\Resources\JadwalLabs;
 use App\Filament\Resources\JadwalLabs\Pages\CreateJadwalLab;
 use App\Filament\Resources\JadwalLabs\Pages\EditJadwalLab;
 use App\Filament\Resources\JadwalLabs\Pages\ListJadwalLabs;
+use App\Filament\Resources\JadwalLabs\Pages\UploadJadwalLab;
 use App\Filament\Resources\JadwalLabs\Schemas\JadwalLabForm;
 use App\Filament\Resources\JadwalLabs\Tables\JadwalLabsTable;
 use App\Models\JadwalLab;
@@ -45,6 +46,7 @@ class JadwalLabResource extends Resource
             'index' => ListJadwalLabs::route('/'),
             'create' => CreateJadwalLab::route('/create'),
             'edit' => EditJadwalLab::route('/{record}/edit'),
+            'upload' => UploadJadwalLab::route('/upload'),
         ];
     }
 }

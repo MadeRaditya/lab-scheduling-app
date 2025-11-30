@@ -9,27 +9,13 @@
             @csrf
 
             <!-- Email Address -->
-            <flux:input
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                required
-                autofocus
-                autocomplete="email"
-                placeholder="email@example.com"
-            />
+            <flux:input name="email" :label="__('Email address')" type="email" required autofocus autocomplete="email"
+                placeholder="email@example.com" />
 
             <!-- Password -->
             <div class="relative">
-                <flux:input
-                    name="password"
-                    :label="__('Password')"
-                    type="password"
-                    required
-                    autocomplete="current-password"
-                    :placeholder="__('Password')"
-                    viewable
-                />
+                <flux:input name="password" :label="__('Password')" type="password" required
+                    autocomplete="current-password" :placeholder="__('Password')" viewable />
 
                 @if (Route::has('password.request'))
                     <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>
@@ -46,6 +32,11 @@
                     {{ __('Log in') }}
                 </flux:button>
             </div>
+
+            <flux:button variant="filled" class="w-full" as="a" href="{{ route('filament.admin.auth.login') }}">
+                Login as Admin
+            </flux:button>
+
         </form>
 
         @if (Route::has('register'))

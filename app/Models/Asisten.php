@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class Asisten extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
     protected $table = 'asistens';
     protected $primaryKey = 'id_asisten';
     public $timestamps = true;
@@ -52,5 +54,23 @@ class Asisten extends Authenticatable
     public function preferensiJadwalAsistens(): HasMany
     {
         return $this->hasMany(PreferensiJadwalAsisten::class, 'id_asisten');
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->nama;
+    }
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
+
+    public function initials(): string
+    {
+        return Str::of($this->nama)
+            ->explode(' ')
+            ->take(2)
+            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->implode('');
     }
 }
