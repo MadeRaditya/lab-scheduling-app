@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             JamOperasionalLabSeeder::class,
             RuanganSeeder::class,
+            KompetensiSeeder::class,
         ]);
 
         User::factory()->create([

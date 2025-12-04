@@ -1,65 +1,81 @@
 <x-layouts.auth>
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Create an account')" :description="__('Enter your details below to create your account')" />
+    <div class="flex flex-col gap-8">
 
-        <!-- Session Status -->
+        <div class="text-center space-y-2">
+            <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white">
+                Buat Akun Baru
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400">
+                Masukkan detail Anda di bawah untuk membuat akun
+            </p>
+        </div>
+
         <x-auth-session-status class="text-center" :status="session('status')" />
 
-        <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
-            @csrf
-            <!-- Name -->
-            <flux:input
-                name="name"
-                :label="__('Name')"
-                type="text"
-                required
-                autofocus
-                autocomplete="name"
-                :placeholder="__('Full name')"
-            />
+        <div
+            class="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 max-w-md mx-auto w-full">
 
-            <!-- Email Address -->
-            <flux:input
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                required
-                autocomplete="email"
-                placeholder="email@example.com"
-            />
+            <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
+                @csrf
 
-            <!-- Password -->
-            <flux:input
-                name="password"
-                :label="__('Password')"
-                type="password"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Password')"
-                viewable
-            />
+                <flux:input
+                    name="name"
+                    label="Nama Lengkap"
+                    type="text"
+                    required
+                    autofocus
+                    autocomplete="name"
+                    placeholder="Nama lengkap Anda"
+                    class="focus:ring-indigo-600 dark:focus:ring-indigo-500"
+                />
 
-            <!-- Confirm Password -->
-            <flux:input
-                name="password_confirmation"
-                :label="__('Confirm password')"
-                type="password"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Confirm password')"
-                viewable
-            />
+                <flux:input
+                    name="email"
+                    label="Alamat Email"
+                    type="email"
+                    required
+                    autocomplete="email"
+                    placeholder="email@example.com"
+                    class="focus:ring-indigo-600 dark:focus:ring-indigo-500"
+                />
 
-            <div class="flex items-center justify-end">
-                <flux:button type="submit" variant="primary" class="w-full" data-test="register-user-button">
-                    {{ __('Create account') }}
+                <flux:input
+                    name="password"
+                    label="Kata Sandi"
+                    type="password"
+                    required
+                    autocomplete="new-password"
+                    placeholder="Kata Sandi"
+                    viewable
+                    class="focus:ring-indigo-600 dark:focus:ring-indigo-500"
+                />
+
+                <flux:input
+                    name="password_confirmation"
+                    label="Konfirmasi Kata Sandi"
+                    type="password"
+                    required
+                    autocomplete="new-password"
+                    placeholder="Konfirmasi Kata Sandi"
+                    viewable
+                    class="focus:ring-indigo-60:0 dark:focus:ring-indigo-500"
+                />
+
+                <flux:button type="submit" variant="primary"
+                    class="w-full **bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600** transition duration-200"
+                    data-test="register-user-button">
+                    Buat Akun
                 </flux:button>
-            </div>
-        </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Already have an account?') }}</span>
-            <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+            </form>
+        </div>
+
+        <div class="text-center text-sm text-gray-600 dark:text-gray-400">
+            <span>Sudah punya akun?</span>
+            <flux:link :href="route('login')" wire:navigate
+                class="text-indigo-600 dark:text-indigo-400 hover:underline">
+                Masuk
+            </flux:link>
         </div>
     </div>
 </x-layouts.auth>
