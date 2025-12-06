@@ -32,4 +32,8 @@ Route::middleware(['auth:asisten', 'verified'])->group(function () {
             ),
         )
         ->name('two-factor.show');
+    
+    Route::get('/kompetensi', function () {
+        return view('livewire.asisten.kompetensi');
+    })->name('kompetensi');
 });
