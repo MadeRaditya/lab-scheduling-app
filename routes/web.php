@@ -36,4 +36,12 @@ Route::middleware(['auth:asisten', 'verified'])->group(function () {
     Route::get('/kompetensi', function () {
         return view('livewire.asisten.kompetensi');
     })->name('kompetensi');
+
+    Route::get('/jadwalAsisten', function () {
+        return view('livewire.asisten.jadwalAsisten');
+    })->name('jadwalAsisten');
+
+    Route::get('/preferensiJadwalAsisten', function () {
+        return view('livewire.asisten.preferensiJadwalAsisten');
+    })->name('PreferensiJadwalAsisten');
 });

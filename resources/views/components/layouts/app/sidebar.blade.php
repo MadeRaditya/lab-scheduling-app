@@ -14,16 +14,31 @@
         </a>
 
         <flux:navlist variant="outline">
-            <flux:navlist.group :heading="__('Platform')" class="grid">
+
+            <flux:navlist.group :heading="__('Menu')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
-                    wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    wire:navigate>
+                    {{ __('Dashboard') }}
+                </flux:navlist.item>
             </flux:navlist.group>
+
+            <flux:navlist.item icon="badge-check" :href="route('kompetensi')"
+                :current="request()->routeIs('kompetensi')" wire:navigate>
+                Kompetensi Saya
+            </flux:navlist.item>
+
+            <flux:navlist.item icon="calendar" :href="route('jadwalAsisten')"
+                :current="request()->routeIs('jadwalAsisten')" wire:navigate>
+                Jadwal Saya
+            </flux:navlist.item>
+
+            <flux:navlist.item icon="sliders-horizontal" :href="route('PreferensiJadwalAsisten')"
+                :current="request()->routeIs('PreferensiJadwalAsisten')" wire:navigate>
+                Preferensi Jadwal Saya
+            </flux:navlist.item>
+
         </flux:navlist>
 
-        <flux:navlist.item icon="square-pen" :href="route('kompetensi')"
-            :current="request()->routeIs('kompetensi')" wire:navigate>
-            Kompetensi Saya
-        </flux:navlist.item>
 
 
         <flux:spacer />
@@ -80,7 +95,7 @@
                         {{ __('Log Out') }}
                     </flux:menu.item>
                 </form>
-            </flux:menu.item>
+                </flux:menu.item>
         </flux:dropdown>
     </flux:sidebar>
 
