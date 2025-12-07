@@ -5,6 +5,7 @@ namespace App\Filament\Resources\KendalaAsistens\Schemas;
 use App\Enums\AsistenStatus;
 use App\Enums\JamHari;
 use App\Enums\KendalaTipe;
+use App\Enums\StatusKendala;
 use App\Models\Asisten;
 use App\Models\Semester;
 use Filament\Forms\Components\DatePicker;
@@ -46,9 +47,9 @@ class KendalaAsistenForm
                     ->required()
                     ->columnSpanFull(),
                 Select::make('status')
-                    ->options(AsistenStatus::class)
+                    ->options(StatusKendala::class)
                     ->required()
-                    ->default(AsistenStatus::Aktif),
+                    ->default(StatusKendala::Pending),
             ]);
     }
 }

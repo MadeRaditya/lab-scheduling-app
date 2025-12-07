@@ -32,19 +32,27 @@
                 Jadwal Saya
             </flux:navlist.item>
 
-            <flux:navlist.item icon="sliders-horizontal" :href="route('PreferensiJadwalAsisten')"
-                :current="request()->routeIs('PreferensiJadwalAsisten')" wire:navigate>
+            <flux:navlist.item icon="sliders-horizontal" :href="route('preferensiJadwalAsisten')"
+                :current="request()->routeIs('preferensiJadwalAsisten')" wire:navigate>
                 Preferensi Jadwal Saya
+            </flux:navlist.item>
+
+            <flux:navlist.item icon="octagon-alert" :href="route('kendalaAsisten')"
+                :current="request()->routeIs('kendalaAsisten')" wire:navigate>
+                Kendala Saya
+            </flux:navlist.item>
+
+            <flux:navlist.item icon="clipboard-check" :href="route('asistenSemester')"
+                :current="request()->routeIs('asistenSemester')" wire:navigate>
+                Asistensi Semester
             </flux:navlist.item>
 
         </flux:navlist>
 
-
-
         <flux:spacer />
 
         <flux:navlist variant="outline">
-            <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
+            <flux:navlist.item icon="folder-git-2" href="https://github.com/MadeRaditya/lab-scheduling-app"
                 target="_blank">
                 {{ __('Repository') }}
             </flux:navlist.item>

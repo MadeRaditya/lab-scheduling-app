@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Asistens\RelationManagers;
 use App\Enums\AsistenStatus;
 use App\Enums\JamHari;
 use App\Enums\KendalaTipe;
+use App\Enums\StatusKendala;
 use App\Models\Semester;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
@@ -54,9 +55,9 @@ class KendalaAsistensRelationManager extends RelationManager
                     ->required()
                     ->columnSpanFull(),
                 Select::make('status')
-                    ->options(AsistenStatus::class)
+                    ->options(StatusKendala::class)
                     ->required()
-                    ->default(AsistenStatus::Aktif),
+                    ->default(StatusKendala::Pending),
             ]);
     }
 
