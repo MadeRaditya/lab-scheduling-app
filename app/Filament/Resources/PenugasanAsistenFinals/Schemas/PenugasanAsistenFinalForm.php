@@ -19,7 +19,14 @@ class PenugasanAsistenFinalForm
         return $schema
             ->components([
                 Select::make('id_jadwal_final')
-                    ->options(JadwalFinal::pluck('id_final', 'id_jadwal_final'))
+                    ->options(
+                        JadwalFinal::with('matakuliah')
+                            ->get()
+                            ->mapWithKeys(fn($j) => [
+                                $j->id_final => "{$j->matakuliah->nama_mk} – {$j->hari} ({$j->jam_mulai}–{$j->jam_selesai})",
+                            ])
+                    )
+                    ->searchable()
                     ->required(),
                 Select::make('id_asisten')
                     ->options(Asisten::pluck('nama', 'id_asisten'))

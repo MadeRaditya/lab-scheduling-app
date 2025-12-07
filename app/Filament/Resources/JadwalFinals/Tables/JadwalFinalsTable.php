@@ -28,6 +28,16 @@ class JadwalFinalsTable
                 TextColumn::make('jam_selesai')
                     ->time()
                     ->sortable(),
+                TextColumn::make('penugasanAsistenFinals.asisten.nama')
+                    ->label('Asisten Bertugas')
+                    ->listWithLineBreaks()
+                    ->limitList(3)
+                    ->expandableLimitedList()
+                    ->searchable()
+                    ->badge()
+                    ->separator(',')
+                    ->default('Belum Ada Asisten')
+                    ->color(fn($state) => $state === 'Belum Ada Asisten' ? 'danger' : 'primary'),
                 TextColumn::make('tanggal_dibuat')
                     ->dateTime()
                     ->sortable(),

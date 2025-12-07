@@ -1,6 +1,5 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    {{-- BAGIAN KIRI: DAFTAR KENDALA (2 Kolom) --}}
     <div class="lg:col-span-2">
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
             
@@ -41,7 +40,7 @@
                                         $color = match($k->status) {
                                             'Disetujui' => 'green',
                                             'Ditolak'   => 'red',
-                                            default     => 'yellow' // Pending
+                                            default     => 'yellow' 
                                         };
                                         $icon = match($k->status) {
                                             'Disetujui' => 'check-circle',
@@ -54,7 +53,6 @@
                                     </flux:badge>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    {{-- Tombol Edit/Hapus hanya muncul jika status masih Pending --}}
                                     @if($k->status === 'Pending')
                                         <div class="inline-flex gap-2">
                                             <flux:button wire:click="edit({{ $k->id_kendala }})" icon="square-pen" size="sm" variant="subtle" />
@@ -78,7 +76,6 @@
         </div>
     </div>
 
-    {{-- BAGIAN KANAN: FORM INPUT (1 Kolom) --}}
     <div class="lg:col-span-1">
         <div class="sticky top-6">
             <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
@@ -90,27 +87,23 @@
 
                 <form wire:submit.prevent="{{ $editing ? 'update' : 'add' }}" class="space-y-4">
                     
-                    {{-- Select Semester --}}
                     <flux:select wire:model="id_semester" label="Semester">
                         @foreach ($semesters as $sem)
                             <option value="{{ $sem->id_semester }}">{{ $sem->nama_semester }}</option>
                         @endforeach
                     </flux:select>
 
-                    {{-- Select Tipe Kendala --}}
                     <flux:select wire:model="tipe_kendala" label="Jenis Kendala">
                         @foreach (\App\Enums\KendalaTipe::cases() as $tipe)
                             <option value="{{ $tipe->value }}">{{ $tipe->value }}</option>
                         @endforeach
                     </flux:select>
 
-                    {{-- Date Range --}}
                     <div class="grid grid-cols-2 gap-3">
                         <flux:input type="date" wire:model="tanggal_mulai" label="Mulai" />
                         <flux:input type="date" wire:model="tanggal_selesai" label="Selesai" />
                     </div>
 
-                    {{-- Optional Hari --}}
                     <flux:select wire:model="hari" label="Hari Spesifik (Opsional)" placeholder="-- Berlaku Semua Hari --">
                         <option value="">-- Berlaku Rentang Tanggal --</option>
                         @foreach ($hari_options as $day)
@@ -119,7 +112,6 @@
                     </flux:select>
                     <flux:description class="text-xs">Pilih hari jika kendala hanya terjadi di hari tertentu (misal: Mata Kuliah Tiap Senin).</flux:description>
 
-                    {{-- Alasan --}}
                     <flux:textarea wire:model="alasan" label="Alasan / Keterangan" rows="3" placeholder="Jelaskan alasan kendala..." />
 
                     <div class="pt-2">

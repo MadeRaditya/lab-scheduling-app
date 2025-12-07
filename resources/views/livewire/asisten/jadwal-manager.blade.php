@@ -1,13 +1,11 @@
 <div class="space-y-6">
 
-    {{-- HEADER & NAVIGASI MODE --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <flux:heading size="lg">Jadwal Asisten</flux:heading>
             <flux:subheading>Kelola jadwal ketersediaan atau kegiatan kamu.</flux:subheading>
         </div>
         
-        {{-- Toggle Mode Button --}}
         <div class="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
             <button wire:click="switchMode('list')" 
                 class="px-4 py-2 text-sm font-medium rounded-md transition {{ $mode === 'list' ? 'bg-white shadow text-zinc-900 dark:bg-zinc-700 dark:text-white' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300' }}">
@@ -24,10 +22,8 @@
         </div>
     </div>
 
-    {{-- MODE 1: LIST JADWAL --}}
     @if($mode === 'list')
         <div class="overflow-hidden border border-zinc-200 rounded-lg dark:border-zinc-700">
-            {{-- Table Code kamu yang lama taruh disini (persis sama) --}}
             <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
                 <thead class="bg-zinc-50 dark:bg-zinc-800 text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">
                     <tr>
@@ -76,13 +72,11 @@
         </div>
     @endif
 
-    {{-- MODE 2: INPUT PAKET (BULK GENERATOR) --}}
     @if($mode === 'bulk')
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700">
             <flux:heading size="lg" class="mb-4">Generator Jadwal Paket</flux:heading>
             
             <form wire:submit.prevent="saveBulk" class="space-y-6">
-                {{-- Form Global untuk Bulk --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <flux:select wire:model="id_semester" label="Semester" placeholder="Pilih Semester...">
                         @foreach ($semesters as $sem)
@@ -97,7 +91,6 @@
 
                 <flux:separator text="Pilih Slot Waktu" />
 
-                {{-- Grid Slot Waktu --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach($this->standardSlots as $hari => $slots)
                         <div class="border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
@@ -106,7 +99,6 @@
                             <div class="flex flex-wrap gap-2">
                                 @foreach($slots as $slot)
                                     @php
-                                        // Key unik untuk checkbox: "Senin|07:30|09:00"
                                         $value = $hari . '|' . $slot[0] . '|' . $slot[1];
                                     @endphp
                                     <label class="cursor-pointer select-none">
@@ -133,13 +125,11 @@
         </div>
     @endif
 
-    {{-- MODE 3: INPUT MANUAL (SINGLE FORM) --}}
     @if($mode === 'single')
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 max-w-2xl mx-auto">
             <flux:heading size="lg" class="mb-4">{{ $editing ? 'Edit Jadwal' : 'Tambah Jadwal Custom' }}</flux:heading>
             
             <form wire:submit.prevent="{{ $editing ? 'update' : 'add' }}" class="space-y-4">
-                 {{-- Copy form Single kamu yang lama kesini --}}
                  <flux:select wire:model="id_semester" label="Semester">
                     @foreach ($semesters as $sem)
                         <option value="{{ $sem->id_semester }}">{{ $sem->nama_semester }}</option>

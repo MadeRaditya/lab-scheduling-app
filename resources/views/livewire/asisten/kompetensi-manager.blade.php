@@ -1,8 +1,6 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    {{-- BAGIAN KIRI: DAFTAR KOMPETENSI --}}
     <div class="lg:col-span-2">
-        {{-- Card Container (Manual Tailwind) --}}
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
 
             <div>
@@ -10,7 +8,6 @@
                 <flux:subheading>Kelola data keahlian dan sertifikasi kamu di sini.</flux:subheading>
             </div>
 
-            {{-- Table Container (Manual Tailwind agar aman) --}}
             <div class="overflow-hidden border border-zinc-200 rounded-lg dark:border-zinc-700">
                 <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
                     <thead
@@ -29,7 +26,6 @@
                                     {{ $k->nama_kompetensi }}
                                 </td>
                                 <td class="px-4 py-3">
-                                    {{-- Badge manual (karena flux:badge mungkin tidak ada) --}}
                                     <span
                                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-zinc-700 bg-zinc-100 rounded-md dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                                         {{ $k->pivot->tingkat_penguasaan ?? "-"}}
@@ -40,11 +36,9 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex gap-2">
-                                        {{-- Tombol Edit --}}
                                         <flux:button wire:click="edit({{ $k->id_kompetensi }})" icon="square-pen"
                                             size="sm" variant="subtle" aria-label="Edit" />
 
-                                        {{-- Tombol Hapus --}}
                                         <flux:button wire:click="delete({{ $k->id_kompetensi }})" icon="trash"
                                             size="sm" variant="danger" aria-label="Hapus" />
                                     </div>
@@ -63,10 +57,8 @@
         </div>
     </div>
 
-    {{-- BAGIAN KANAN: FORM INPUT --}}
     <div class="lg:col-span-1">
         <div class="sticky top-6">
-            {{-- Card Container --}}
             <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
 
                 <div>
@@ -76,7 +68,6 @@
 
                 <form wire:submit.prevent="{{ $editing ? 'update' : 'add' }}" class="space-y-4">
 
-                    {{-- Select --}}
                     <flux:select wire:model="selected_kompetensi" label="Pilih Kompetensi"
                         placeholder="Cari kompetensi...">
                         <option value="">-- Pilih --</option>
@@ -85,7 +76,6 @@
                         @endforeach
                     </flux:select>
 
-                    {{-- Inputs --}}
                     <flux:select wire:model="tingkat_penguasaan" label="Tingkat Penguasaan" placeholder="Pilih Level">
                         <option value="">-- Pilih Level --</option>
                         @foreach (\App\Enums\LevelKompetensi::cases() as $level)

@@ -1,6 +1,5 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    {{-- BAGIAN KIRI: DAFTAR RIWAYAT (2 Kolom) --}}
     <div class="lg:col-span-2">
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
             
@@ -30,7 +29,6 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex flex-col gap-1 items-start">
-                                        {{-- Badge Peran --}}
                                         @php
                                             $peranColor = match($h->peran) {
                                                 'Koordinator' => 'indigo',
@@ -40,7 +38,6 @@
                                         @endphp
                                         <flux:badge size="sm" color="{{ $peranColor }}">{{ $h->peran }}</flux:badge>
 
-                                        {{-- Badge Status --}}
                                         @php
                                             $statusColor = match($h->status) {
                                                 'Aktif'     => 'green',
@@ -88,7 +85,6 @@
         </div>
     </div>
 
-    {{-- BAGIAN KANAN: FORM INPUT (1 Kolom) --}}
     <div class="lg:col-span-1">
         <div class="sticky top-6">
             <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
@@ -100,21 +96,18 @@
 
                 <form wire:submit.prevent="{{ $editing ? 'update' : 'add' }}" class="space-y-4">
                     
-                    {{-- Select Semester --}}
                     <flux:select wire:model="id_semester" label="Semester">
                         @foreach ($semesters as $sem)
                             <option value="{{ $sem->id_semester }}">{{ $sem->nama_semester }}</option>
                         @endforeach
                     </flux:select>
 
-                    {{-- Select Peran (Enum) --}}
                     <flux:select wire:model="peran" label="Peran / Jabatan">
                         @foreach (\App\Enums\AsistenPeran::cases() as $p)
                             <option value="{{ $p->value }}">{{ $p->value }}</option>
                         @endforeach
                     </flux:select>
 
-                    {{-- Select Status (Enum) --}}
                     <flux:select wire:model="status" label="Status Keaktifan">
                         @foreach (\App\Enums\AsistenStatus::cases() as $s)
                             <option value="{{ $s->value }}">{{ $s->value }}</option>
@@ -123,14 +116,11 @@
 
                     <flux:separator />
 
-                    {{-- Tanggal Mulai --}}
                     <flux:input type="date" wire:model="tanggal_mulai" label="Tanggal Mulai" />
 
-                    {{-- Tanggal Keluar (Optional) --}}
                     <flux:input type="date" wire:model="tanggal_keluar" label="Tanggal Selesai (Opsional)" />
                     <flux:description class="text-xs">Kosongkan jika masih aktif sampai sekarang.</flux:description>
 
-                    {{-- Keterangan --}}
                     <flux:textarea wire:model="keterangan" label="Keterangan" placeholder="Catatan tambahan (Opsional)..." />
 
                     <div class="pt-2">

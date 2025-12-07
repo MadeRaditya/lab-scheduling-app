@@ -1,15 +1,12 @@
 <div class="space-y-6">
 
-    {{-- HEADER --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <flux:heading size="lg">Preferensi Asistensi</flux:heading>
             <flux:subheading>Kapan kamu BERSEDIA atau INGIN Asistensi?</flux:subheading>
         </div>
 
-        {{-- Navigation & MAGIC BUTTON --}}
         <div class="flex flex-wrap gap-2">
-            {{-- Tombol Generate Otomatis --}}
             <flux:button wire:click="generateFromEmptySlots" icon="sparkles" variant="primary">
                 Ambil dari Slot Kosong
             </flux:button>
@@ -27,7 +24,6 @@
         </div>
     </div>
 
-    {{-- LIST MODE --}}
     @if ($mode === 'list')
         <div class="overflow-hidden border border-zinc-200 rounded-lg dark:border-zinc-700">
             <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
@@ -48,7 +44,6 @@
                                     {{ substr($p->jam_selesai, 0, 5) }}</div>
                             </td>
                             <td class="px-4 py-3">
-                                {{-- Badge Warna Warni sesuai preferensi --}}
                                 @php
                                     $color = match ($p->tingkat_preferensi) {
                                         \App\Enums\PreferensiTingkat::SangatSuka->value => 'green',
@@ -81,7 +76,6 @@
         </div>
     @endif
 
-    {{-- BULK & SINGLE MODE (Form mirip JadwalManager tapi input "Tingkat Preferensi") --}}
     @if ($mode === 'bulk')
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700">
             <flux:heading size="lg" class="mb-4">Input Preferensi Paket</flux:heading>
@@ -100,7 +94,6 @@
                     <flux:input wire:model="keterangan" label="Keterangan" placeholder="Opsional" />
                 </div>
 
-                {{-- GRID CHECKBOX (Sama persis dengan JadwalManager) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     @foreach ($this->standardSlots as $hari => $slots)
                         <div class="border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
