@@ -46,6 +46,11 @@
                 :current="request()->routeIs('asistenSemester')" wire:navigate>
                 Asistensi Semester
             </flux:navlist.item>
+            
+            <flux:navlist.item icon="calender" :href="route('jadwalSaya')"
+                :current="request()->routeIs('jadwalSaya')" wire:navigate>
+                Jadwal saya
+            </flux:navlist.item>
 
         </flux:navlist>
 

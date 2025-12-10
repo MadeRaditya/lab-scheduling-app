@@ -1,3 +1,3 @@
-<x-layouts.app title="Kompetensi Saya">
+<x-layouts.app title="Semester Aktif">
     <livewire:asisten.asisten-semester-manager />
 </x-layouts.app>

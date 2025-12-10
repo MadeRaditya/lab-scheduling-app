@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Asisten\JadwalSaya;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
@@ -32,7 +33,7 @@ Route::middleware(['auth:asisten', 'verified'])->group(function () {
             ),
         )
         ->name('two-factor.show');
-    
+
     Route::get('/kompetensi', function () {
         return view('livewire.asisten.kompetensi');
     })->name('kompetensi');
@@ -52,4 +53,8 @@ Route::middleware(['auth:asisten', 'verified'])->group(function () {
     Route::get('/asistenSemester', function () {
         return view('livewire.asisten.asistenSemester');
     })->name('asistenSemester');
+
+    Route::get('/jadwal-saya', function () {
+        return view('livewire.asisten.jadwal-saya-page');
+    })->name('jadwalSaya');
 });
