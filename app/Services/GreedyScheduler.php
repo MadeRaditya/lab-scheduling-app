@@ -194,7 +194,7 @@ class GreedyScheduler
             $hasMatchingSkill = false;
             foreach ($asisten->kompetensis as $ak) {
                 foreach ($requiredSkills as $rk) {
-                    if ($ak->id_kompetensi === $rk->id_kompetensi) {
+                    if ($ak->id_kompetensi == $rk->id_kompetensi) {
                         $score += 60;
                         $bestSkill = $rk->id_kompetensi;
                         $hasMatchingSkill = true;
