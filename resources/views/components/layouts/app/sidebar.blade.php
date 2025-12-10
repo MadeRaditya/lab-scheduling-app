@@ -29,7 +29,7 @@
 
             <flux:navlist.item icon="calendar" :href="route('jadwalAsisten')"
                 :current="request()->routeIs('jadwalAsisten')" wire:navigate>
-                Jadwal Saya
+                Jadwal Kuliah Saya
             </flux:navlist.item>
 
             <flux:navlist.item icon="sliders-horizontal" :href="route('preferensiJadwalAsisten')"

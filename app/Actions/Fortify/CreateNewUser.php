@@ -2,9 +2,11 @@
 
 namespace App\Actions\Fortify;
 
-use App\Models\User;
+use App\Enums\JurusanAsisten;
+use App\Models\Asisten;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -16,24 +18,25 @@ class CreateNewUser implements CreatesNewUsers
      *
      * @param  array<string, string>  $input
      */
-    public function create(array $input): User
+    public function create(array $input): Asisten
     {
         Validator::make($input, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique(User::class),
-            ],
+            'nama' => ['required', 'string', 'max:255'],
+            'npm' => ['required', 'string', 'max:50'],
+            'jurusan' => ['required', new Enum(JurusanAsisten::class)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique(Asisten::class)],
+            'no_telepon' => ['required', 'string', 'max:20'],
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
+        return Asisten::create([
+            'nama' => $input['nama'],
+            'npm' => $input['npm'],
+            'jurusan' => $input['jurusan'],
             'email' => $input['email'],
-            'password' => $input['password'],
+            'password' => bcrypt($input['password']),
+            'no_telepon' => $input['no_telepon'],
+            'status_aktif' => true,
         ]);
     }
 }
