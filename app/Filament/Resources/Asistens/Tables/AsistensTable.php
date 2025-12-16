@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Asistens\Tables;
 
+use App\Filament\Resources\Asistens\AsistenResource;
+use App\Models\Asisten;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -49,6 +52,11 @@ class AsistensTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('verifikasi')
+                    ->label('Verifikasi Kualifikasi')
+                    ->icon('heroicon-m-check-badge')
+                    ->color('warning')
+                    ->url(fn (Asisten $record) => AsistenResource::getUrl('kualifikasi', ['record' => $record])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Asistens;
 
 use App\Filament\Resources\Asistens\Pages\CreateAsisten;
 use App\Filament\Resources\Asistens\Pages\EditAsisten;
+use App\Filament\Resources\Asistens\Pages\KelolaKualifikasi;
 use App\Filament\Resources\Asistens\Pages\ListAsistens;
 use App\Filament\Resources\Asistens\RelationManagers\AsistenSemesterRelationManager;
 use App\Filament\Resources\Asistens\RelationManagers\JadwalAsistenRelationManager;
@@ -57,6 +58,7 @@ class AsistenResource extends Resource
             'index' => ListAsistens::route('/'),
             'create' => CreateAsisten::route('/create'),
             'edit' => EditAsisten::route('/{record}/edit'),
+            'kualifikasi' => KelolaKualifikasi::route('/{record}/kualifikasi'),
         ];
     }
 }
