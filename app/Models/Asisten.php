@@ -56,6 +56,11 @@ class Asisten extends Authenticatable
         return $this->hasMany(PreferensiJadwalAsisten::class, 'id_asisten');
     }
 
+    public function matakuliahs(): BelongsToMany
+    {
+        return $this->belongsToMany(Matakuliah::class, 'asisten_matakuliah', 'id_asisten', 'kode_mk')->withTimestamps();
+    }
+
     public function getNameAttribute()
     {
         return $this->nama;

@@ -9,6 +9,7 @@ use App\Filament\Resources\Asistens\RelationManagers\AsistenSemesterRelationMana
 use App\Filament\Resources\Asistens\RelationManagers\JadwalAsistenRelationManager;
 use App\Filament\Resources\Asistens\RelationManagers\KendalaAsistensRelationManager;
 use App\Filament\Resources\Asistens\RelationManagers\KompetensiRelationManager;
+use App\Filament\Resources\Asistens\RelationManagers\MatakuliahsRelationManager;
 use App\Filament\Resources\Asistens\RelationManagers\PreferensiJadwalAsistenRelationManager;
 use App\Filament\Resources\Asistens\Schemas\AsistenForm;
 use App\Filament\Resources\Asistens\Tables\AsistensTable;
@@ -46,6 +47,7 @@ class AsistenResource extends Resource
             KendalaAsistensRelationManager::class,
             PreferensiJadwalAsistenRelationManager::class,
             AsistenSemesterRelationManager::class,
+            MatakuliahsRelationManager::class,
         ];
     }
 

@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
                 MenuItem::make()
                     ->label('Profil')
                     ->icon('heroicon-o-user')
-                    ->url(fn() => route('dashboard'))
+                    ->url(fn() => route('profile.edit'))
 
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

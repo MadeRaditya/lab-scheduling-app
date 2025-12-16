@@ -46,7 +46,7 @@ class GreedyScheduler
                     $stats['total_assigned']++;
                 } else {
                     $stats['total_unassigned']++;
-                    Log::warning("⚠️ Tidak ada asisten yang bisa di-assign untuk {$result['mk']}");
+                    Log::warning("⚠️ Tidak ada asisten verified yang tersedia untuk {$result['mk']}");
                 }
             }
 
@@ -54,7 +54,6 @@ class GreedyScheduler
 
             Log::info("=== Greedy Scheduler Completed ===");
             Log::info("Assigned: {$stats['total_assigned']}/{$stats['total_jadwal']}");
-            Log::info("Unassigned: {$stats['total_unassigned']}");
 
             return [
                 'status' => 'success',
@@ -90,7 +89,7 @@ class GreedyScheduler
 
     private function loadJadwalLabs(int $idSemester)
     {
-        return JadwalLab::with(['matakuliah.kompetensis', 'ruangan', 'semester'])
+        return JadwalLab::with(['matakuliah', 'ruangan', 'semester'])
             ->where('id_semester', $idSemester)
             ->orderBy('hari')
             ->orderBy('jam_mulai')
@@ -99,7 +98,7 @@ class GreedyScheduler
 
     private function loadAsistens(int $idSemester)
     {
-        return Asisten::with(['kompetensis', 'preferensiJadwalAsistens', 'kendalaAsistens'])
+        return Asisten::with(['matakuliahs', 'preferensiJadwalAsistens', 'kendalaAsistens'])
             ->whereHas('asistenSemesters', function ($q) use ($idSemester) {
                 $q->where('id_semester', $idSemester)->where('status', 'Aktif');
             })
@@ -108,7 +107,7 @@ class GreedyScheduler
 
     private function processJadwal($jadwal, $asistens): array
     {
-        Log::info("Processing: {$jadwal->matakuliah->nama_mk} - {$jadwal->hari} {$jadwal->jam_mulai}-{$jadwal->jam_selesai}");
+        Log::info("Processing: {$jadwal->matakuliah->nama_mk} - {$jadwal->hari}");
 
         $jadwalFinal = JadwalFinal::create([
             'id_semester' => $jadwal->id_semester,
@@ -117,18 +116,14 @@ class GreedyScheduler
             'hari' => $jadwal->hari,
             'jam_mulai' => $jadwal->jam_mulai,
             'jam_selesai' => $jadwal->jam_selesai,
-            'metode_penjadwalan' => 'Greedy Algorithm',
+            'metode_penjadwalan' => 'Greedy Algorithm (Verified MK)',
             'status' => 'Aktif',
         ]);
 
-        $requiredSkills = $jadwal->matakuliah->kompetensis;
-        
-        $ranked = $this->rankAsistensForJadwal($jadwal, $requiredSkills, $asistens);
+        $ranked = $this->rankAsistensForJadwal($jadwal, $asistens);
 
         $needed = $jadwal->jumlah_asisten_dibutuhkan ?? 1;
         $top = $ranked->take($needed);
-
-        Log::info("Needed: {$needed}, Available: {$top->count()}");
 
         $assignedAsistens = [];
         foreach ($top as $rank) {
@@ -149,7 +144,6 @@ class GreedyScheduler
         ];
     }
 
-    
     private function assignAsisten($jadwalFinal, $rank): void
     {
         $asistenId = $rank['asisten']->id_asisten;
@@ -157,7 +151,7 @@ class GreedyScheduler
         PenugasanAsistenFinal::create([
             'id_jadwal_final' => $jadwalFinal->id_final,
             'id_asisten' => $asistenId,
-            'id_kompetensi' => $rank['kompetensi'] ?? null,
+            'id_kompetensi' => null, 
             'skor_kecocokan' => $rank['score'],
             'peran' => 'Asisten Utama',
             'status_kehadiran' => 'Terjadwal',
@@ -173,11 +167,17 @@ class GreedyScheduler
         Log::info("✅ Assigned: {$rank['asisten']->nama} (Score: {$rank['score']})");
     }
 
-    private function rankAsistensForJadwal($jadwal, $requiredSkills, $asistens)
+    private function rankAsistensForJadwal($jadwal, $asistens)
     {
         $ranked = collect();
 
         foreach ($asistens as $asisten) {
+            $isVerified = $asisten->matakuliahs->contains('kode_mk', $jadwal->kode_mk);
+
+            if (!$isVerified) {
+                continue; 
+            }
+
             if ($this->hasPersonalConflict($asisten, $jadwal)) {
                 Log::debug("  ⏩ {$asisten->nama}: Skipped (Personal conflict)");
                 continue;
@@ -188,37 +188,18 @@ class GreedyScheduler
                 continue;
             }
 
-            $score = 0;
-            $bestSkill = null;
-
-            $hasMatchingSkill = false;
-            foreach ($asisten->kompetensis as $ak) {
-                foreach ($requiredSkills as $rk) {
-                    if ($ak->id_kompetensi == $rk->id_kompetensi) {
-                        $score += 60;
-                        $bestSkill = $rk->id_kompetensi;
-                        $hasMatchingSkill = true;
-                        Log::debug("  ✓ {$asisten->nama}: Kompetensi match (+60)");
-                        break 2;
-                    }
-                }
-            }
-
-            if (!$hasMatchingSkill) {
-                Log::debug("  ⚠️ {$asisten->nama}: No matching kompetensi");
-            }
-
+            $score = 60; 
+            
             $prefScore = $this->calculatePreferenceScore($asisten, $jadwal);
             $score += $prefScore;
 
-            $score += 10;
+            $score += 10; 
 
             Log::debug("  📊 {$asisten->nama}: Final Score = {$score}");
 
             $ranked->push([
                 'asisten' => $asisten,
                 'score' => $score,
-                'kompetensi' => $bestSkill,
             ]);
         }
 
@@ -241,19 +222,15 @@ class GreedyScheduler
             ->first();
 
         if (!$pref) {
-            Log::debug("    ⚠️ No preferensi match");
             return 0;
         }
 
-        $score = match ($pref->tingkat_preferensi) {
+        return match ($pref->tingkat_preferensi) {
             'Sangat Suka' => 30,
             'Bisa' => 20,
             'Kurang Suka' => 10,
             default => 0,
         };
-
-        Log::debug("    ✓ Preferensi: {$pref->tingkat_preferensi} (+{$score})");
-        return $score;
     }
 
     private function checkTimeOverlap($start1, $end1, $start2, $end2): bool
@@ -275,11 +252,9 @@ class GreedyScheduler
                 $endDate = Carbon::parse($kendala->tanggal_selesai);
 
                 if ($today->between($startDate, $endDate)) {
-                    Log::debug("    🚫 Kendala aktif: {$kendala->jenis_kendala}");
                     return true;
                 }
             } else {
-                Log::debug("    🚫 Kendala permanen: {$kendala->jenis_kendala}");
                 return true;
             }
         }
@@ -296,7 +271,6 @@ class GreedyScheduler
         ];
     }
 
-    
     private function isAsistenBusy($asistenId, $hari, $start, $end): bool
     {
         if (!isset($this->assignedHistory[$asistenId])) {

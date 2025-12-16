@@ -43,4 +43,10 @@ class Matakuliah extends Model
     {
         return $this->belongsTo(Semester::class, 'semester_berjalan');
     }
+
+    public function asistens(): BelongsToMany
+    {
+        return $this->belongsToMany(Asisten::class, 'asisten_matakuliah', 'kode_mk', 'id_asisten')
+            ->withTimestamps();
+    }
 }
