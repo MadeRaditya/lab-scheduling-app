@@ -31,6 +31,12 @@ class UploadJadwalLab extends Page implements HasForms
 
     public ?array $data = [];
 
+    public bool $isImporting = false;
+    public int $totalRows = 0;
+    public int $processedRows = 0;
+    public string $currentFilePath = '';
+    public int $successCount = 0;
+
     public function mount(): void
     {
         $this->form->fill();
@@ -51,10 +57,9 @@ class UploadJadwalLab extends Page implements HasForms
             ->statePath('data');
     }
 
-    public function submit()
+    public function startImport()
     {
         $data = $this->form->getState();
-
         if (empty($data['csv_file'])) return;
 
         $filePath = $data['csv_file'];
@@ -65,17 +70,49 @@ class UploadJadwalLab extends Page implements HasForms
             return;
         }
 
-        $file = fopen($fullPath, 'r');
-        fgetcsv($file, 0, ';'); 
+        $file = new \SplFileObject($fullPath, 'r');
+        $file->seek(PHP_INT_MAX);
+        $this->totalRows = $file->key(); 
+        
+        $this->currentFilePath = $filePath;
+        $this->processedRows = 0; 
+        $this->successCount = 0;
+        $this->isImporting = true; 
+    }
+
+    public function importBatch()
+    {
+        if (!$this->isImporting) return;
+
+        $fullPath = Storage::disk('local')->path($this->currentFilePath);
+        $file = new \SplFileObject($fullPath, 'r');
+        
+        $file->setFlags(\SplFileObject::READ_CSV);
+        $file->setCsvControl(';');
+
+        $file->seek($this->processedRows);
+
+        if ($this->processedRows === 0) {
+            $file->current(); 
+            $file->next();
+            $this->processedRows++;
+        }
+
+        $batchSize = 50; 
+        $count = 0;
 
         DB::beginTransaction();
-
         try {
-            $countImport = 0;
+            while (!$file->eof() && $count < $batchSize) {
+                $row = $file->current();
+                
+                if (empty($row) || count($row) < 17) {
+                    $file->next();
+                    $this->processedRows++;
+                    continue; 
+                }
 
-            while (($row = fgetcsv($file, 0, ';')) !== false) {
-                if (empty(array_filter($row)) || count($row) < 17) continue;
-
+                
                 $csvTahun       = trim($row[0]);
                 $csvJenisSem    = trim($row[1]);
                 $csvRuangan     = trim($row[2]);
@@ -99,12 +136,7 @@ class UploadJadwalLab extends Page implements HasForms
                 
                 $semester = Semester::firstOrCreate(
                     ['tahun_ajaran' => $csvTahun, 'jenis' => $jenisEnum],
-                    [
-                        'nama_semester' => "Semester {$csvJenisSem} {$csvTahun}",
-                        'status' => SemesterStatus::Aktif, 
-                        'tanggal_mulai' => now(),
-                        'tanggal_selesai' => now()->addMonths(6),
-                    ]
+                    ['nama_semester' => "Semester {$csvJenisSem} {$csvTahun}", 'status' => SemesterStatus::Aktif, 'tanggal_mulai' => now(), 'tanggal_selesai' => now()->addMonths(6)]
                 );
 
                 $kategoriEnum = RuanganKategori::LABORATORIUM;
@@ -113,24 +145,12 @@ class UploadJadwalLab extends Page implements HasForms
 
                 $ruangan = Ruangan::updateOrCreate(
                     ['nama_ruangan' => $csvRuangan],
-                    [
-                        'gedung' => $csvGedung,
-                        'lantai' => (int) $csvLantai,       
-                        'kapasitas' => (int) $csvKapasitas, 
-                        'kategori' => $kategoriEnum,
-                        'status' => RuanganStatus::AKTIF,
-                    ]
+                    ['gedung' => $csvGedung, 'lantai' => (int) $csvLantai, 'kapasitas' => (int) $csvKapasitas, 'kategori' => $kategoriEnum, 'status' => RuanganStatus::AKTIF]
                 );
 
                 $matakuliah = Matakuliah::updateOrCreate(
                     ['kode_mk' => $csvKodeMK],
-                    [
-                        'nama_mk' => $csvNamaMK,
-                        'sks' => (int) $csvSKS,
-                        'kelas' => $csvKelas,
-                        'dosen' => $csvDosen,
-                        'semester_berjalan' => $semester->id_semester,
-                    ]
+                    ['nama_mk' => $csvNamaMK, 'sks' => (int) $csvSKS, 'kelas' => $csvKelas, 'dosen' => $csvDosen, 'semester_berjalan' => $semester->id_semester]
                 );
 
                 if (!empty($csvKompetensi)) {
@@ -139,10 +159,7 @@ class UploadJadwalLab extends Page implements HasForms
                     foreach ($listKomp as $namaKomp) {
                         $namaKomp = trim($namaKomp);
                         if(empty($namaKomp)) continue;
-                        $komp = Kompetensi::firstOrCreate(
-                            ['nama_kompetensi' => $namaKomp],
-                            ['deskripsi' => 'Auto-imported']
-                        );
+                        $komp = Kompetensi::firstOrCreate(['nama_kompetensi' => $namaKomp], ['deskripsi' => 'Auto-imported']);
                         $kompetensiIds[] = $komp->id_kompetensi;
                     }
                     $matakuliah->kompetensis()->syncWithoutDetaching($kompetensiIds);
@@ -165,24 +182,27 @@ class UploadJadwalLab extends Page implements HasForms
                     'keterangan' => "Dosen: {$csvDosen}",
                 ]);
 
-                $countImport++;
+                $count++;
+                $this->successCount++;
+                $this->processedRows++;
+                $file->next();
             }
-
             DB::commit();
-            fclose($file);
-            Storage::disk('local')->delete($filePath);
-
-            Notification::make()->success()
-                ->title('Import Sukses')
-                ->body("{$countImport} jadwal berhasil dibuat dengan data dinamis.")
-                ->send();
-
-            $this->form->fill();
 
         } catch (\Exception $e) {
             DB::rollBack();
-            if (isset($file)) fclose($file);
-            Notification::make()->danger()->title('Gagal')->body($e->getMessage())->persistent()->send();
+            Notification::make()->warning()->title('Error pada baris ' . $this->processedRows)->body($e->getMessage())->send();
+        }
+
+        if ($file->eof() || $this->processedRows >= $this->totalRows) {
+            $this->isImporting = false;
+            Storage::disk('local')->delete($this->currentFilePath);
+            $this->form->fill();
+            
+            Notification::make()->success()
+                ->title('Import Selesai')
+                ->body("{$this->successCount} jadwal berhasil diimport.")
+                ->send();
         }
     }
 }

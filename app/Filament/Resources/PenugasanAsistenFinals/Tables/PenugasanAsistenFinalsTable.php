@@ -14,27 +14,27 @@ class PenugasanAsistenFinalsTable
     {
         return $table
             ->columns([
-                TextColumn::make('jadwalFinal.kode_mk')
-                    ->sortable(),
+                TextColumn::make('jadwalFinal.matakuliah.nama_mk')
+                    ->label('Mata Kuliah')
+                    ->sortable()
+                    ->searchable(),
+
                 TextColumn::make('asisten.nama')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
+
                 TextColumn::make('kompetensi.nama_kompetensi')
                     ->sortable(),
+
                 TextColumn::make('skor_kecocokan')
                     ->numeric()
                     ->sortable(),
+
                 TextColumn::make('peran')
                     ->searchable(),
+
                 TextColumn::make('status_kehadiran')
                     ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
