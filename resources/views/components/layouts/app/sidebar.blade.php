@@ -13,6 +13,46 @@
             <x-app-logo />
         </a>
 
+        <div class="mb-6 px-2">
+            <div
+                class="flex items-center gap-3 p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                <div class="relative shrink-0">
+                    @if(auth()->user()->foto)
+                        <img src="{{ Storage::url(auth()->user()->foto) }}" alt="{{ auth()->user()->name }}"
+                            class="w-10 h-10 rounded-full object-cover">
+                    @else
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
+                            {{ auth()->user()->initials() }}
+                        </div>
+                    @endif
+                    <div
+                        class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-zinc-800 rounded-full">
+                    </div>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate">
+                        {{ auth()->user()->name }}
+                    </div>
+                    <div class="text-xs text-zinc-500 truncate">
+                        {{ auth()->user()->npm ?? auth()->user()->email }}
+                    </div>
+                    <div class="mt-1 flex flex-wrap gap-1">
+                        <span
+                            class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400">
+                            Asisten
+                        </span>
+                        @if (auth()->user()->status == 'aktif')
+                            <span
+                                class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                Aktif
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <flux:navlist variant="outline">
 
             <flux:navlist.group :heading="__('Menu')" class="grid">
@@ -46,9 +86,9 @@
                 :current="request()->routeIs('asistenSemester')" wire:navigate>
                 Asistensi Semester
             </flux:navlist.item>
-            
-            <flux:navlist.item icon="calender" :href="route('jadwalSaya')"
-                :current="request()->routeIs('jadwalSaya')" wire:navigate>
+
+            <flux:navlist.item icon="calender" :href="route('jadwalSaya')" :current="request()->routeIs('jadwalSaya')"
+                wire:navigate>
                 Jadwal saya
             </flux:navlist.item>
 

@@ -38,7 +38,7 @@
                 <flux:checkbox name="remember" label="Ingat saya" :checked="old('remember')" />
 
                 <flux:button variant="primary" type="submit"
-                    class="w-full **bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600** transition duration-200">
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition duration-200">
                     Masuk
                 </flux:button>
 
