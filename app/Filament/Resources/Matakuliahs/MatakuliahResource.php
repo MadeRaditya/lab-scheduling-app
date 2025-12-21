@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Matakuliahs;
 use App\Filament\Resources\Matakuliahs\Pages\CreateMatakuliah;
 use App\Filament\Resources\Matakuliahs\Pages\EditMatakuliah;
 use App\Filament\Resources\Matakuliahs\Pages\ListMatakuliahs;
+use App\Filament\Resources\Matakuliahs\Pages\UploadMatakuliah;
 use App\Filament\Resources\Matakuliahs\RelationManagers\KompetensiRelationManager;
 use App\Filament\Resources\Matakuliahs\Schemas\MatakuliahForm;
 use App\Filament\Resources\Matakuliahs\Tables\MatakuliahsTable;
@@ -46,6 +47,7 @@ class MatakuliahResource extends Resource
             'index' => ListMatakuliahs::route('/'),
             'create' => CreateMatakuliah::route('/create'),
             'edit' => EditMatakuliah::route('/{record}/edit'),
+            'upload' => UploadMatakuliah::route('/upload'),
         ];
     }
 }
