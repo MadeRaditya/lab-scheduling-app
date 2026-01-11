@@ -26,9 +26,9 @@
                 <flux:input name="npm" label="NPM" type="text" required placeholder="Masukkan NPM" />
 
                 {{-- Jurusan --}}
-                <label class="text-gray-700 dark:text-gray-300">Jurusan</label>
+                <label class="text-gray-700 dark:text-white -mb-4">Jurusan</label>
                 <select name="jurusan" required
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                    class="w-full p-3 rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                     <option value="" disabled selected>Pilih jurusan</option>
 
                     @foreach (\App\Enums\JurusanAsisten::cases() as $jurusan)
@@ -52,7 +52,8 @@
                 <flux:input name="password_confirmation" label="Konfirmasi Kata Sandi" type="password" required
                     autocomplete="new-password" placeholder="Konfirmasi Kata Sandi" viewable />
 
-                <flux:button type="submit" variant="primary" class="w-full bg-indigo-600 hover:bg-indigo-700">
+                <flux:button type="submit" variant="primary"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 dark:text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 transition duration-200">
                     Buat Akun
                 </flux:button>
             </form>

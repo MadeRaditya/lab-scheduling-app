@@ -2,11 +2,15 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\JadwalHariIni;
+use App\Filament\Widgets\JadwalPerHariChart;
+use App\Filament\Widgets\StatsOverview;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -37,13 +41,13 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(
                 BreezyCore::make()
                     ->myProfile(
-                        shouldRegisterUserMenu: true, 
-                        shouldRegisterNavigation: false, 
-                        hasAvatars: false, 
+                        shouldRegisterUserMenu: true,
+                        shouldRegisterNavigation: false,
+                        hasAvatars: false,
                         slug: 'my-profile'
                     )
                     ->enableTwoFactorAuthentication()
-                    ->enableSanctumTokens(false) 
+                    ->enableSanctumTokens(false)
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -54,6 +58,9 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                StatsOverview::class,
+                JadwalPerHariChart::class,
+                JadwalHariIni::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -71,6 +78,20 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authGuard('web')
             ->login()
-            ;
+            ->darkMode(true)
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Penjadwalan')
+                    ->icon('heroicon-o-calendar'),
+
+                NavigationGroup::make()
+                    ->label('Manajemen Asisten')
+                    ->icon('heroicon-o-users'),
+
+                NavigationGroup::make()
+                    ->label('Data Master') 
+                    ->icon('heroicon-o-server-stack')
+                    ->collapsed(), 
+            ]);
     }
 }

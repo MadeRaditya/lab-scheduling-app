@@ -21,13 +21,14 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AsistenResource extends Resource
 {
     protected static ?string $model = Asisten::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Users;
-
+    protected static string | UnitEnum | null $navigationGroup  = 'Manajemen Asisten';
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'Asisten Laboratorium';
 

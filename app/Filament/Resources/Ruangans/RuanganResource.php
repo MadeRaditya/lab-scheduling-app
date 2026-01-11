@@ -13,12 +13,14 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class RuanganResource extends Resource
 {
     protected static ?string $model = Ruangan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingOffice;
+    protected static string | UnitEnum | null $navigationGroup  = 'Data Master';
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'Ruangan Laboratorium';
 

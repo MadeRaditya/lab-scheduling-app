@@ -13,12 +13,14 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class KendalaAsistenResource extends Resource
 {
     protected static ?string $model = KendalaAsisten::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::ExclamationCircle;
+    protected static string | UnitEnum | null $navigationGroup  = 'Manajemen Asisten';
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $recordTitleAttribute = 'Kendala Asisten';
 

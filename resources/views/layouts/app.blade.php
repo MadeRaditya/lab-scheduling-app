@@ -15,23 +15,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-    <script>
-        (function() {
-            const html = document.documentElement;
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-            const initialTheme = (savedTheme === 'dark' || (!savedTheme && prefersDark)) ? 'dark' : 'light';
-
-            if (initialTheme === 'dark') {
-                html.classList.add('dark');
-            } else {
-                html.classList.remove('dark');
-            }
-
-            localStorage.setItem('theme', initialTheme);
-        })();
-    </script>
+    @include('partials.theme-script')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')

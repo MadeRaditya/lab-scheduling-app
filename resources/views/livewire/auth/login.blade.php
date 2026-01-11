@@ -18,17 +18,17 @@
             <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
                 @csrf
 
-                <flux:input name="email" label="Alamat Email" type="email"
-                    required autofocus autocomplete="email" placeholder="email@example.com"
-                    class="focus:ring-indigo-600 dark:focus:ring-indigo-500" />
+                <flux:input name="email" label="Alamat Email" type="email" required autofocus autocomplete="email"
+                    placeholder="email@example.com" class="focus:ring-indigo-600 dark:focus:ring-indigo-500" />
 
                 <div class="relative">
-                    <flux:input name="password" label="Kata Sandi" type="password"
-                        required autocomplete="current-password" placeholder="Kata Sandi" viewable
+                    <flux:input name="password" label="Kata Sandi" type="password" required
+                        autocomplete="current-password" placeholder="Kata Sandi" viewable
                         class="focus:ring-indigo-600 dark:focus:ring-indigo-500" />
 
                     @if (Route::has('password.request'))
-                        <flux:link class="absolute top-0 end-0 text-sm **text-indigo-600 dark:text-indigo-400 hover:underline**"
+                        <flux:link
+                            class="absolute top-0 end-0 text-sm **text-indigo-600 dark:text-indigo-400 hover:underline**"
                             :href="route('password.request')" wire:navigate>
                             Lupa kata sandi?
                         </flux:link>
@@ -38,11 +38,12 @@
                 <flux:checkbox name="remember" label="Ingat saya" :checked="old('remember')" />
 
                 <flux:button variant="primary" type="submit"
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition duration-200">
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 dark:text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 transition duration-200">
                     Masuk
                 </flux:button>
 
                 <flux:button variant="filled" as="a" href="{{ route('filament.admin.auth.login') }}"
+                    wire:navigate
                     class="w-full bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 text-white transition duration-200">
                     Masuk sebagai Admin
                 </flux:button>

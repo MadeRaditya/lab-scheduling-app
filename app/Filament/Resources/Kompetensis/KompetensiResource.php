@@ -19,7 +19,8 @@ class KompetensiResource extends Resource
 {
     protected static ?string $model = Kompetensi::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Cog;
+    protected static string | UnitEnum | null $navigationGroup  = 'Data Master';
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'nama_kompetensi';
 
