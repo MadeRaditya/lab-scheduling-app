@@ -13,6 +13,12 @@ class KompetensiSeeder extends Seeder
     {
         $rows = [
             [
+                'nama_kompetensi'=> 'Programming (VB.net, Phyton, Database)',
+                'deskripsi' => 'Kompetensi dalam pengembangan software digital.',
+                'kategori'=> KategoriKompetensi::Ilmu_Komputer,
+                'level'=> LevelKompetensi::Lanjut
+            ],
+            [
                 'nama_kompetensi'=> 'Web Programming',
                 'deskripsi' => 'Kompetensi dalam pengembangan aplikasi web menggunakan teknologi frontend dan backend untuk membangun sistem berbasis internet.',
                 'kategori'=> KategoriKompetensi::Ilmu_Komputer,

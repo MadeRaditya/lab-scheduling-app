@@ -22,14 +22,15 @@ class ListJadwalLabs extends ListRecords
             CreateAction::make(),
             
             Action::make('upload')
-                ->label('Upload Jadwal Lab')
+                ->label('Upload CSV Jadwal Lab')
                 ->icon('heroicon-o-arrow-up-tray')
+                ->color('success')
                 ->url(JadwalLabResource::getUrl('upload')),
             
             Action::make('generateJadwal')
                 ->label('Generate Jadwal Final')
                 ->icon('heroicon-o-cpu-chip')
-                ->color('success')
+                ->color('warning')
                 ->requiresConfirmation()
                 ->modalHeading('Generate Jadwal Final')
                 ->modalDescription('Proses ini akan MENGHAPUS jadwal final yang sudah ada pada semester yang dipilih dan membuat ulang berdasarkan algoritma greedy.')

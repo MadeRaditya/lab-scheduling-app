@@ -85,7 +85,7 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
                 TextColumn::make('kode_mk')->label('Kode')->searchable(),
                 TextColumn::make('nama_mk')->label('Mata Kuliah')->searchable(),
                 TextColumn::make('sks')->label('SKS'),
-                TextColumn::make('semester_berjalan')->label('Semester'),
+                TextColumn::make('semester.nama_semester')->label('Semester'),
             ])
             ->headerActions([
                 AttachAction::make()

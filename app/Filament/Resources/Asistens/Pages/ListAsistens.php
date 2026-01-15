@@ -16,7 +16,8 @@ class ListAsistens extends ListRecords
         return [
             CreateAction::make(),
             Action::make('upload')
-                ->label('Upload CSV')
+                ->label('Upload CSV Asisten')
+                ->icon('heroicon-o-arrow-up-tray')
                 ->color('success')
                 ->url(AsistenResource::getUrl('upload')),
         ];

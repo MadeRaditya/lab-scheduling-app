@@ -17,6 +17,7 @@ class ListMatakuliahs extends ListRecords
             CreateAction::make(),
             Action::make('upload')
                 ->label('Upload CSV Matakuliah')
+                ->icon('heroicon-o-arrow-up-tray')
                 ->color('success')
                 ->url(MatakuliahResource::getUrl('upload'))
         ];

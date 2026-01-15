@@ -19,20 +19,21 @@ class UploadAsisten extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    public function getView(): string
-    {
-        return 'filament.resources.asistens.pages.upload-asisten';
-    }
     protected static string $resource = AsistenResource::class;
-    protected static ?string $title = 'Upload Data Asisten';
+    protected static ?string $title = "Upload Data Asisten";
 
     public ?array $data = [];
-    
+
     public bool $isImporting = false;
     public int $totalRows = 0;
     public int $processedRows = 0;
-    public string $currentFilePath = '';
+    public string $currentFilePath = "";
     public int $successCount = 0;
+
+    public function getView(): string
+    {
+        return "filament.resources.asistens.pages.upload-asisten";
+    }
 
     public function mount(): void
     {
@@ -43,35 +44,54 @@ class UploadAsisten extends Page implements HasForms
     {
         return $schema
             ->schema([
-                FileUpload::make('csv_file')
+                FileUpload::make("csv_file")
                     ->label("Upload CSV Asisten")
-                    ->helperText('Format: Nama;NPM;Jurusan;Email;NoHP;List_Kompetensi(koma)')
-                    ->acceptedFileTypes(['text/csv', 'application/csv', 'text/plain'])
-                    ->directory('csv/asisten')
-                    ->disk('local')
+                    ->acceptedFileTypes([
+                        "text/csv",
+                        "application/csv",
+                        "text/plain",
+                    ])
+                    ->directory("csv/asisten")
+                    ->disk("local")
                     ->required(),
             ])
-            ->statePath('data');
+            ->statePath("data");
     }
 
     public function startImport()
     {
         $data = $this->form->getState();
-        if (empty($data['csv_file'])) return;
-
-        $filePath = $data['csv_file'];
-        $fullPath = Storage::disk('local')->path($filePath);
-
-        if (!file_exists($fullPath)) {
-            Notification::make()->danger()->title('File tidak ditemukan!')->send();
+        if (empty($data["csv_file"])) {
             return;
         }
 
-        $file = new \SplFileObject($fullPath, 'r');
-        $file->seek(PHP_INT_MAX);
-        $this->totalRows = $file->key();
-        
-        $this->currentFilePath = $filePath;
+        $this->currentFilePath = $data["csv_file"];
+        $fullPath = Storage::disk("local")->path($this->currentFilePath);
+
+        if (!file_exists($fullPath)) {
+            Notification::make()
+                ->danger()
+                ->title("File tidak ditemukan")
+                ->send();
+            return;
+        }
+
+        $file = new \SplFileObject($fullPath);
+        $file->setFlags(
+            \SplFileObject::READ_CSV |
+                \SplFileObject::READ_AHEAD |
+                \SplFileObject::SKIP_EMPTY,
+        );
+        $file->setCsvControl(";");
+
+        $total = 0;
+        foreach ($file as $row) {
+            if (!empty($row) && count($row) >= 2) {
+                $total++;
+            }
+        }
+
+        $this->totalRows = max(0, $total - 1);
         $this->processedRows = 0;
         $this->successCount = 0;
         $this->isImporting = true;
@@ -79,97 +99,154 @@ class UploadAsisten extends Page implements HasForms
 
     public function importBatch()
     {
-        if (!$this->isImporting) return;
-
-        $fullPath = Storage::disk('local')->path($this->currentFilePath);
-        $file = new \SplFileObject($fullPath, 'r');
-        $file->setFlags(\SplFileObject::READ_CSV);
-        $file->setCsvControl(';'); 
-        $file->seek($this->processedRows);
-
-        if ($this->processedRows === 0) {
-            $file->current(); 
-            $file->next();
-            $this->processedRows++;
+        if (!$this->isImporting) {
+            return;
         }
 
-        $batchSize = 50;
-        $count = 0;
+        $fullPath = Storage::disk("local")->path($this->currentFilePath);
+        $file = new \SplFileObject($fullPath);
+        $file->setFlags(
+            \SplFileObject::READ_CSV |
+                \SplFileObject::READ_AHEAD |
+                \SplFileObject::SKIP_EMPTY,
+        );
+        $file->setCsvControl(";");
+
+        $seekLine = $this->processedRows + 1;
+
+        try {
+            $file->seek($seekLine);
+        } catch (\RuntimeException $e) {
+            $this->processedRows = $this->totalRows;
+            return;
+        }
 
         DB::beginTransaction();
+
         try {
-            while (!$file->eof() && $count < $batchSize) {
+            $batchSize = 25;
+            $count = 0;
+
+            while ($count < $batchSize) {
                 $row = $file->current();
-                
+
+                if (empty($row) && $file->eof()) {
+                    break;
+                }
+
                 if (empty($row) || count($row) < 4) {
-                    $file->next();
                     $this->processedRows++;
-                    continue; 
+                    $file->next();
+                    if ($file->eof()) {
+                        break;
+                    }
+                    continue;
                 }
 
-                $csvNama        = trim($row[0]);
-                $csvNpm         = trim($row[1]);
-                $csvJurusan     = trim($row[2]);
-                $csvEmail       = trim($row[3]);
-                $csvNoHp        = isset($row[4]) ? trim($row[4]) : null;
-                $csvKompetensi  = isset($row[5]) ? trim($row[5]) : null;
+                $csvNama = trim($row[0]);
+                $csvNpm = trim($row[1]);
+                $csvJurusan = trim($row[2]);
+                $csvEmail = trim($row[3]);
+                $csvNoHp = $row[4] ?? null;
+                $csvStatus = trim($row[5]);
+                $csvKompetensi = $row[6] ?? null;
 
-                $jurusanEnum = JurusanAsisten::tryFrom($csvJurusan);
-                if (!$jurusanEnum) {
-                     $jurusanEnum = JurusanAsisten::Teknik_Informatika; 
+                if (empty($csvNama)) {
+                    $this->processedRows++;
+                    $file->next();
+                    if ($file->eof()) {
+                        break;
+                    }
+                    continue;
                 }
 
-                // 2. Create / Update Data Asisten
+                $jurusanEnum =
+                    JurusanAsisten::tryFrom($csvJurusan) ??
+                    JurusanAsisten::Teknik_Informatika;
+
+                if ($csvNpm === "-" || empty($csvNpm)) {
+                    $finalNpm = "TMP-" . substr(uniqid(), -6);
+                    $password = "12345678";
+                } else {
+                    $finalNpm = $csvNpm;
+                    $password = $csvNpm;
+                }
+
+                $statusAktif = filter_var($csvStatus, FILTER_VALIDATE_BOOLEAN);
+
                 $asisten = Asisten::updateOrCreate(
-                    ['npm' => $csvNpm], 
+                    ["email" => $csvEmail],
                     [
-                        'nama' => $csvNama,
-                        'email' => $csvEmail,
-                        'jurusan' => $jurusanEnum,
-                        'no_telepon' => $csvNoHp,
-                        'password' => bcrypt($csvNpm), // Default password = NPM
-                        'status_aktif' => true,
-                        'tanggal_daftar' => now(),
-                    ]
+                        "nama" => $csvNama,
+                        "npm" => $finalNpm,
+                        "jurusan" => $jurusanEnum,
+                        "no_telepon" => $csvNoHp,
+                        "password" => bcrypt($password),
+                        "status_aktif" => $statusAktif,
+                        "tanggal_daftar" => now(),
+                    ],
                 );
 
                 if (!empty($csvKompetensi)) {
-                    $listKomp = explode(',', $csvKompetensi);
                     $kompetensiIds = [];
-                    
-                    foreach ($listKomp as $namaKomp) {
+
+                    foreach (explode("|", $csvKompetensi) as $namaKomp) {
                         $namaKomp = trim($namaKomp);
-                        if(empty($namaKomp)) continue;
-                        
+                        if ($namaKomp === "") {
+                            continue;
+                        }
+
                         $komp = Kompetensi::firstOrCreate(
-                            ['nama_kompetensi' => $namaKomp],
-                            ['deskripsi' => 'Imported via CSV']
+                            ["nama_kompetensi" => $namaKomp],
+                            ["deskripsi" => "Imported via CSV"],
                         );
+
                         $kompetensiIds[] = $komp->id_kompetensi;
                     }
-                    
-                    $asisten->kompetensis()->syncWithoutDetaching($kompetensiIds);
+
+                    $asisten
+                        ->kompetensis()
+                        ->syncWithoutDetaching($kompetensiIds);
                 }
 
-                $count++;
-                $this->successCount++;
                 $this->processedRows++;
-                $file->next();
-            }
-            DB::commit();
+                $this->successCount++;
 
-        } catch (\Exception $e) {
+                $file->next();
+                $count++;
+
+                if ($file->eof() && empty($file->current())) {
+                    break;
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
             DB::rollBack();
+            $this->isImporting = false;
+
+            Notification::make()
+                ->danger()
+                ->title("Import gagal")
+                ->body($e->getMessage())
+                ->send();
+
+            return;
         }
 
-        if ($file->eof() || $this->processedRows >= $this->totalRows) {
+        if (
+            $this->processedRows >= $this->totalRows ||
+            ($file->eof() && empty($file->current()))
+        ) {
             $this->isImporting = false;
-            Storage::disk('local')->delete($this->currentFilePath);
+            Storage::disk("local")->delete($this->currentFilePath);
             $this->form->fill();
-            
-            Notification::make()->success()
-                ->title('Import Selesai')
-                ->body("{$this->successCount} asisten berhasil diproses.")
+            $this->processedRows = $this->totalRows;
+
+            Notification::make()
+                ->success()
+                ->title("Import selesai")
+                ->body("{$this->successCount} data berhasil diimport")
                 ->send();
         }
     }
