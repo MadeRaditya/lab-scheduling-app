@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Matakuliahs\Schemas;
 
 use App\Enums\SemesterStatus;
 use App\Models\Semester;
-use Dom\Text;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -24,6 +23,7 @@ class MatakuliahForm
                     ->required(),
                 TextInput::make('sks')
                     ->required()
+                    ->minValue(0)
                     ->numeric(),
                 TextInput::make('kelas')
                     ->default(null),

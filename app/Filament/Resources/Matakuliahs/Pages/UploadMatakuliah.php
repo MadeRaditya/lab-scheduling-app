@@ -146,13 +146,15 @@ class UploadMatakuliah extends Page implements HasForms
                 );
 
                 $matakuliah = Matakuliah::updateOrCreate(
-                    ["kode_mk" => $csvKode],
+                    [
+                        "kode_mk" => $csvKode,
+                        "kelas" => $csvKelas,
+                        "semester_berjalan" => $semester->id_semester,
+                    ],
                     [
                         "nama_mk" => $csvNama,
                         "sks" => $csvSks,
-                        "kelas" => $csvKelas,
                         "dosen" => $csvDosen,
-                        "semester_berjalan" => $semester->id_semester,
                         "deskripsi" => $csvDeskripsi,
                     ],
                 );

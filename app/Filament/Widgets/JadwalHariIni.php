@@ -5,7 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\JadwalFinal;
 use App\Models\Semester;
 use App\Enums\SemesterStatus;
-use App\Filament\Resources\JadwalLabs\JadwalLabResource;
+use App\Filament\Resources\JadwalFinals\JadwalFinalResource; 
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -24,11 +24,13 @@ class JadwalHariIni extends BaseWidget
         Carbon::setLocale('id');
         return 'Jadwal Praktikum Hari Ini (' . Carbon::now()->translatedFormat('l, d F Y') . ')';
     }
+
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 JadwalFinal::query()
+                    ->with(['matakuliah', 'ruangan', 'semester']) // Eager load biar ringan
                     ->whereHas('semester', function ($q) {
                         $q->where('status', SemesterStatus::Aktif);
                     })
@@ -37,15 +39,21 @@ class JadwalHariIni extends BaseWidget
             )
             ->columns([
                 TextColumn::make('jam_mulai')
-                ->label('Jam')
+                    ->label('Jam')
                     ->formatStateUsing(fn ($record) => substr($record->jam_mulai, 0, 5) . ' - ' . substr($record->jam_selesai, 0, 5))
                     ->badge()
                     ->color('info'),
 
                 TextColumn::make('matakuliah.nama_mk')
                     ->label('Mata Kuliah')
-                    ->description(fn ($record) => $record->matakuliah->kode_mk)
+                    ->description(fn (JadwalFinal $record) => "{$record->matakuliah->kode_mk} - {$record->matakuliah->dosen}")
                     ->searchable(),
+
+                TextColumn::make('matakuliah.kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('warning') 
+                    ->alignCenter(),
 
                 TextColumn::make('ruangan.nama_ruangan')
                     ->label('Ruangan')
@@ -59,12 +67,18 @@ class JadwalHariIni extends BaseWidget
                 
                 TextColumn::make('status')
                     ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Aktif' => 'success',
+                        'Dibatalkan' => 'danger',
+                        'Selesai' => 'gray',
+                        default => 'primary',
+                    }),
             ])
             ->actions([
                 Action::make('open')
-                ->url(fn (JadwalFinal $record): string => JadwalLabResource::getUrl('edit', ['record' => $record]))
+                    ->label('Detail')
                     ->icon('heroicon-m-eye')
-                    ->label('Detail'),
+                    ->url(fn (JadwalFinal $record): string => JadwalFinalResource::getUrl('edit', ['record' => $record])),
             ])
             ->paginated(false);
     }

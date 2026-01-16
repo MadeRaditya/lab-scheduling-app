@@ -19,10 +19,10 @@ class KendalaAsistenResource extends Resource
 {
     protected static ?string $model = KendalaAsisten::class;
 
-    protected static string | UnitEnum | null $navigationGroup  = 'Manajemen Asisten';
-    protected static ?int $navigationSort = 5;
+    protected static string|UnitEnum|null $navigationGroup = "Manajemen Asisten";
+    protected static ?int $navigationSort = 6;
 
-    protected static ?string $recordTitleAttribute = 'Kendala Asisten';
+    protected static ?string $recordTitleAttribute = "Kendala Asisten";
 
     public static function form(Schema $schema): Schema
     {
@@ -37,16 +37,16 @@ class KendalaAsistenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
-        ];
+                //
+            ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListKendalaAsistens::route('/'),
-            'create' => CreateKendalaAsisten::route('/create'),
-            'edit' => EditKendalaAsisten::route('/{record}/edit'),
+            "index" => ListKendalaAsistens::route("/"),
+            "create" => CreateKendalaAsisten::route("/create"),
+            "edit" => EditKendalaAsisten::route("/{record}/edit"),
         ];
     }
 }

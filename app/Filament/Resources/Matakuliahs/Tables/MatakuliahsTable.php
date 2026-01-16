@@ -15,21 +15,32 @@ class MatakuliahsTable
         return $table
             ->columns([
                 TextColumn::make('kode_mk')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('nama_mk')
+                    ->label("Mata Kuliah")
+                    ->sortable()
+                    ->searchable()
+                    ->wrap(),
+                TextColumn::make('kelas')
+                    ->badge()
+                    ->color("info")
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('sks')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('kelas')
-                    ->searchable(),
                 TextColumn::make('dosen')
                     ->searchable(),
                 TextColumn::make('semester.nama_semester')
                     ->sortable(),
                 TextColumn::make('kompetensis.nama_kompetensi')
+                    ->label("Kompetensi")
+                    ->badge()
+                    ->color("success")
                     ->listWithLineBreaks()
-                    ->limitList(3) 
+                    ->limitList(3)
+                    ->expandableLimitedList()
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()

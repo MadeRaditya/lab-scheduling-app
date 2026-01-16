@@ -46,7 +46,7 @@ class GreedyScheduler
                     $stats['total_assigned']++;
                 } else {
                     $stats['total_unassigned']++;
-                    Log::warning("⚠️ Tidak ada asisten verified yang tersedia untuk {$result['mk']}");
+                    Log::warning("⚠️ Tidak ada asisten verified yang tersedia untuk {$jadwal->matakuliah->nama_mk}");
                 }
             }
 
@@ -107,11 +107,11 @@ class GreedyScheduler
 
     private function processJadwal($jadwal, $asistens): array
     {
-        Log::info("Processing: {$jadwal->matakuliah->nama_mk} - {$jadwal->hari}");
+        Log::info("Processing: {$jadwal->matakuliah->nama_mk} (Kelas: {$jadwal->matakuliah->kelas}) - {$jadwal->hari}");
 
         $jadwalFinal = JadwalFinal::create([
             'id_semester' => $jadwal->id_semester,
-            'kode_mk' => $jadwal->kode_mk,
+            'matakuliah_id' => $jadwal->matakuliah_id,
             'id_ruangan' => $jadwal->id_ruangan,
             'hari' => $jadwal->hari,
             'jam_mulai' => $jadwal->jam_mulai,
@@ -135,7 +135,7 @@ class GreedyScheduler
         }
 
         return [
-            'mk' => $jadwal->matakuliah->nama_mk,
+            'mk' => $jadwal->matakuliah->nama_mk . " ({$jadwal->matakuliah->kelas})",
             'hari' => $jadwal->hari,
             'waktu' => "{$jadwal->jam_mulai} - {$jadwal->jam_selesai}",
             'needed' => $needed,
@@ -149,7 +149,7 @@ class GreedyScheduler
         $asistenId = $rank['asisten']->id_asisten;
 
         PenugasanAsistenFinal::create([
-            'id_jadwal_final' => $jadwalFinal->id_final,
+            'id_jadwal_final' => $jadwalFinal->id_final, 
             'id_asisten' => $asistenId,
             'id_kompetensi' => null, 
             'skor_kecocokan' => $rank['score'],
@@ -172,7 +172,7 @@ class GreedyScheduler
         $ranked = collect();
 
         foreach ($asistens as $asisten) {
-            $isVerified = $asisten->matakuliahs->contains('kode_mk', $jadwal->kode_mk);
+            $isVerified = $asisten->matakuliahs->contains('id', $jadwal->matakuliah_id);
 
             if (!$isVerified) {
                 continue; 

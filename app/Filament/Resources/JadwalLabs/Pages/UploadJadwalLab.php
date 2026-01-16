@@ -177,13 +177,15 @@ class UploadJadwalLab extends Page implements HasForms
                 );
 
                 $matakuliah = Matakuliah::updateOrCreate(
-                    ["kode_mk" => $csvKodeMK],
+                    [
+                        "kode_mk" => $csvKodeMK,
+                        "kelas" => $csvKelas,
+                        "semester_berjalan" => $semester->id_semester,
+                    ],
                     [
                         "nama_mk" => $csvNamaMK,
                         "sks" => (int) $csvSKS,
-                        "kelas" => $csvKelas,
                         "dosen" => $csvDosen,
-                        "semester_berjalan" => $semester->id_semester,
                     ],
                 );
 
@@ -211,7 +213,7 @@ class UploadJadwalLab extends Page implements HasForms
 
                 JadwalLab::create([
                     "id_semester" => $semester->id_semester,
-                    "kode_mk" => $matakuliah->kode_mk,
+                    "matakuliah_id" => $matakuliah->id,
                     "id_ruangan" => $ruangan->id_ruangan,
                     "hari" => $csvHari,
                     "jam_mulai" => $csvMulai,

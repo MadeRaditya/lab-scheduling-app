@@ -25,14 +25,20 @@ class JadwalFinalForm
                     )
                     ->searchable()
                     ->required(),
-                Select::make('kode_mk')
-                    ->options(
-                        Matakuliah::pluck('nama_mk', 'kode_mk')
-                    )
+                Select::make('matakuliah_id')
+                    ->label('Mata Kuliah')
+                    ->required()
                     ->searchable()
-                    ->required(),
+                    ->options(function () {
+                        return Matakuliah::all()->mapWithKeys(function ($mk) {
+                            return [
+                                $mk->id => "{$mk->kode_mk} - {$mk->nama_mk} ({$mk->kelas}) - {$mk->dosen}"
+                            ];
+                        });
+                    }),
                 Select::make('id_ruangan')
                     ->options(Ruangan::pluck('nama_ruangan', 'id_ruangan'))
+                    ->searchable()
                     ->required(),
                 Select::make('hari')
                     ->options(JamHari::class)

@@ -19,12 +19,12 @@ class JadwalAsistenResource extends Resource
 {
     protected static ?string $model = JadwalAsisten::class;
 
-    protected static string | UnitEnum | null $navigationGroup  = 'Penjadwalan';
+    protected static string|UnitEnum|null $navigationGroup = "Manajemen Asisten";
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationLabel = 'Jadwal KRS Asisten';
+    protected static ?string $navigationLabel = "Jadwal KRS Asisten";
 
-    protected static ?string $recordTitleAttribute = 'Jadwal_Asisten';
+    protected static ?string $recordTitleAttribute = "Jadwal_Asisten";
 
     public static function form(Schema $schema): Schema
     {
@@ -39,16 +39,16 @@ class JadwalAsistenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
-        ];
+                //
+            ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListJadwalAsistens::route('/'),
-            'create' => CreateJadwalAsisten::route('/create'),
-            'edit' => EditJadwalAsisten::route('/{record}/edit'),
+            "index" => ListJadwalAsistens::route("/"),
+            "create" => CreateJadwalAsisten::route("/create"),
+            "edit" => EditJadwalAsisten::route("/{record}/edit"),
         ];
     }
 }

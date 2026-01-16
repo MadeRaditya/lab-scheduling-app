@@ -11,42 +11,51 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Matakuliah extends Model
 {
     use HasFactory;
-    protected $table = 'matakuliahs';
-    protected $primaryKey = 'kode_mk';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    protected $table = "matakuliahs";
+
     public $timestamps = true;
-    protected $fillable =
-    ['kode_mk', 'nama_mk', 'sks', 'kelas', 'dosen', 'semester_berjalan', 'deskripsi'];
+    protected $fillable = [
+        "kode_mk",
+        "nama_mk",
+        "sks",
+        "kelas",
+        "dosen",
+        "semester_berjalan",
+        "deskripsi",
+    ];
     public function kompetensis(): BelongsToMany
     {
         return $this->belongsToMany(
             Kompetensi::class,
-            'matakuliah_kompetensi',
-            'kode_mk',
-            'id_kompetensi'
+            "matakuliah_kompetensi",
+            "matakuliah_id",
+            "id_kompetensi",
         )
             ->using(MatakuliahKompetensi::class)
-            ->withPivot(['tingkat_dibutuhkan', 'prioritas'])
+            ->withPivot(["tingkat_dibutuhkan", "prioritas"])
             ->withTimestamps();
     }
     public function jadwalLabs(): HasMany
     {
-        return $this->hasMany(JadwalLab::class, 'kode_mk');
+        return $this->hasMany(JadwalLab::class, "matakuliah_id");
     }
     public function jadwalFinals(): HasMany
     {
-        return $this->hasMany(JadwalFinal::class, 'kode_mk');
+        return $this->hasMany(JadwalFinal::class, "matakuliah_id");
     }
 
     public function semester(): BelongsTo
     {
-        return $this->belongsTo(Semester::class, 'semester_berjalan');
+        return $this->belongsTo(Semester::class, "semester_berjalan");
     }
 
     public function asistens(): BelongsToMany
     {
-        return $this->belongsToMany(Asisten::class, 'asisten_matakuliah', 'kode_mk', 'id_asisten')
-            ->withTimestamps();
+        return $this->belongsToMany(
+            Asisten::class,
+            "asisten_matakuliah",
+            "matakuliah_id",
+            "id_asisten",
+        )->withTimestamps();
     }
 }

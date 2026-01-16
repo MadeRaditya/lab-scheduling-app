@@ -19,10 +19,10 @@ class PenugasanAsistenFinalResource extends Resource
 {
     protected static ?string $model = PenugasanAsistenFinal::class;
 
-    protected static string | UnitEnum | null $navigationGroup  = 'Manajemen Asisten';
-    protected static ?int $navigationSort = 3;
+    protected static string|UnitEnum|null $navigationGroup = "Manajemen Asisten";
+    protected static ?int $navigationSort = 4;
 
-    protected static ?string $recordTitleAttribute = 'Penugasan Asisten';
+    protected static ?string $recordTitleAttribute = "Penugasan Asisten";
 
     public static function form(Schema $schema): Schema
     {
@@ -37,16 +37,16 @@ class PenugasanAsistenFinalResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
-        ];
+                //
+            ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListPenugasanAsistenFinals::route('/'),
-            'create' => CreatePenugasanAsistenFinal::route('/create'),
-            'edit' => EditPenugasanAsistenFinal::route('/{record}/edit'),
+            "index" => ListPenugasanAsistenFinals::route("/"),
+            "create" => CreatePenugasanAsistenFinal::route("/create"),
+            "edit" => EditPenugasanAsistenFinal::route("/{record}/edit"),
         ];
     }
 }
