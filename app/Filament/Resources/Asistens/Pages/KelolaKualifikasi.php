@@ -101,34 +101,64 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
             ->headerActions([
                 AttachAction::make()
                     ->label("Tambah Kualifikasi")
-                    ->preloadRecordSelect()
-                    ->recordSelect(function (Select $select) {
-                        return $select
+                    ->form(fn(AttachAction $action): array => [
+                        $action->getRecordSelect()
                             ->label("Pilih Mata Kuliah")
                             ->searchable()
+                            ->preload()
+
                             ->options(function () {
                                 $asistenId = $this->record->id_asisten;
+
                                 $kompetensiIds = DB::table("asisten_kompetensi")
                                     ->where("id_asisten", $asistenId)
                                     ->pluck("id_kompetensi");
 
                                 return Matakuliah::query()
-                                    ->whereHas("kompetensis", function (
-                                        $q,
-                                    ) use ($kompetensiIds) {
-                                        $q->whereIn(
-                                            "kompetensis.id_kompetensi",
-                                            $kompetensiIds,
-                                        );
+                                    ->whereHas("kompetensis", function ($q) use ($kompetensiIds) {
+                                        $q->whereIn("kompetensis.id_kompetensi", $kompetensiIds);
                                     })
+                                    ->limit(50) 
                                     ->get()
                                     ->mapWithKeys(function ($mk) {
                                         return [
                                             $mk->id => "{$mk->kode_mk} - {$mk->nama_mk} ({$mk->kelas}) - {$mk->dosen}",
                                         ];
-                                    });
-                            });
-                    })
+                                    })
+                                    ->toArray();
+                            })
+
+                            ->getSearchResultsUsing(function (string $search) {
+                                $asistenId = $this->record->id_asisten;
+
+                                $kompetensiIds = DB::table("asisten_kompetensi")
+                                    ->where("id_asisten", $asistenId)
+                                    ->pluck("id_kompetensi");
+
+                                return Matakuliah::query()
+                                    ->whereHas("kompetensis", function ($q) use ($kompetensiIds) {
+                                        $q->whereIn("kompetensis.id_kompetensi", $kompetensiIds);
+                                    })
+                                    ->where(function ($q) use ($search) {
+                                        $q->where('nama_mk', 'like', "%{$search}%")
+                                            ->orWhere('kode_mk', 'like', "%{$search}%")
+                                            ->orWhere('dosen', 'like', "%{$search}%");
+                                    })
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(function ($mk) {
+                                        return [
+                                            $mk->id => "{$mk->kode_mk} - {$mk->nama_mk} ({$mk->kelas}) - {$mk->dosen}",
+                                        ];
+                                    })
+                                    ->toArray();
+                            })
+
+                            ->getOptionLabelUsing(function ($value): ?string {
+                                $mk = Matakuliah::find($value);
+                                return $mk ? "{$mk->kode_mk} - {$mk->nama_mk} ({$mk->kelas}) - {$mk->dosen}" : null;
+                            }),
+                    ])
                     ->multiple(),
             ])
             ->actions([DetachAction::make()->label("Hapus")]);

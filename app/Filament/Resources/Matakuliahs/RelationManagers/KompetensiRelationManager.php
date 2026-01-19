@@ -44,8 +44,9 @@ class KompetensiRelationManager extends RelationManager
             ->recordTitleAttribute('nama_kompetensi')
             ->columns([
                 TextColumn::make('nama_kompetensi')->label('Kompetensi')->sortable()->searchable(),
-                TextColumn::make('pivot.tingkat_dibutuhkan'),
+                TextColumn::make('pivot.tingkat_dibutuhkan')->label("tingkat_dibutuhkan"),
                 TextColumn::make('pivot.prioritas')
+                    ->label("prioritas")
                     ->formatStateUsing(fn($state) => match ($state) {
                         1 => 'Wajib',
                         2 => 'Disarankan',

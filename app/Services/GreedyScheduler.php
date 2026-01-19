@@ -25,11 +25,6 @@ class GreedyScheduler
             $jadwalLabs = $this->loadJadwalLabs($idSemester);
             $asistens = $this->loadAsistens($idSemester);
 
-            Log::info("=== Greedy Scheduler Started ===");
-            Log::info("Semester ID: {$idSemester}");
-            Log::info("Total jadwal labs: " . $jadwalLabs->count());
-            Log::info("Total asistens aktif: " . $asistens->count());
-
             $results = [];
             $stats = [
                 'total_jadwal' => $jadwalLabs->count(),
@@ -46,14 +41,10 @@ class GreedyScheduler
                     $stats['total_assigned']++;
                 } else {
                     $stats['total_unassigned']++;
-                    Log::warning("⚠️ Tidak ada asisten verified yang tersedia untuk {$jadwal->matakuliah->nama_mk}");
                 }
             }
 
             DB::commit();
-
-            Log::info("=== Greedy Scheduler Completed ===");
-            Log::info("Assigned: {$stats['total_assigned']}/{$stats['total_jadwal']}");
 
             return [
                 'status' => 'success',
@@ -64,8 +55,7 @@ class GreedyScheduler
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("❌ Error in GreedyScheduler: " . $e->getMessage());
-            Log::error($e->getTraceAsString());
+            Log::error($e->getMessage());
 
             return [
                 'status' => 'error',
@@ -83,7 +73,6 @@ class GreedyScheduler
         if ($jadwalFinalIds->isNotEmpty()) {
             PenugasanAsistenFinal::whereIn('id_jadwal_final', $jadwalFinalIds)->delete();
             JadwalFinal::where('id_semester', $idSemester)->delete();
-            Log::info("Cleared existing schedule");
         }
     }
 
@@ -107,8 +96,6 @@ class GreedyScheduler
 
     private function processJadwal($jadwal, $asistens): array
     {
-        Log::info("Processing: {$jadwal->matakuliah->nama_mk} (Kelas: {$jadwal->matakuliah->kelas}) - {$jadwal->hari}");
-
         $jadwalFinal = JadwalFinal::create([
             'id_semester' => $jadwal->id_semester,
             'matakuliah_id' => $jadwal->matakuliah_id,
@@ -134,12 +121,25 @@ class GreedyScheduler
             ];
         }
 
+        $assignedCount = $top->count();
+
+        if ($assignedCount == 0) {
+            $jadwalFinal->update([
+                'status' => 'Dibatalkan',
+                'catatan' => 'Auto-generate: Tidak ditemukan asisten yang cocok.'
+            ]);
+        } elseif ($assignedCount < $needed) {
+            $jadwalFinal->update([
+                'catatan' => "Auto-generate: Kekurangan asisten (Dapat $assignedCount dari $needed)."
+            ]);
+        }
+
         return [
             'mk' => $jadwal->matakuliah->nama_mk . " ({$jadwal->matakuliah->kelas})",
             'hari' => $jadwal->hari,
             'waktu' => "{$jadwal->jam_mulai} - {$jadwal->jam_selesai}",
             'needed' => $needed,
-            'assigned_count' => $top->count(),
+            'assigned_count' => $assignedCount,
             'asistens' => $assignedAsistens,
         ];
     }
@@ -149,7 +149,7 @@ class GreedyScheduler
         $asistenId = $rank['asisten']->id_asisten;
 
         PenugasanAsistenFinal::create([
-            'id_jadwal_final' => $jadwalFinal->id_final, 
+            'id_jadwal_final' => $jadwalFinal->id_final,
             'id_asisten' => $asistenId,
             'id_kompetensi' => null, 
             'skor_kecocokan' => $rank['score'],
@@ -163,39 +163,45 @@ class GreedyScheduler
             $jadwalFinal->jam_mulai, 
             $jadwalFinal->jam_selesai
         );
-
-        Log::info("✅ Assigned: {$rank['asisten']->nama} (Score: {$rank['score']})");
     }
 
     private function rankAsistensForJadwal($jadwal, $asistens)
     {
         $ranked = collect();
+        $namaMkTarget = $jadwal->matakuliah->nama_mk;
 
         foreach ($asistens as $asisten) {
-            $isVerified = $asisten->matakuliahs->contains('id', $jadwal->matakuliah_id);
+            $isStrictVerified = $asisten->matakuliahs->contains('id', $jadwal->matakuliah_id);
+            
+            $isSoftVerified = false;
+            if (!$isStrictVerified) {
+                $isSoftVerified = $asisten->matakuliahs->contains('nama_mk', $namaMkTarget);
+            }
 
-            if (!$isVerified) {
+            if (!$isStrictVerified && !$isSoftVerified) {
                 continue; 
             }
 
             if ($this->hasPersonalConflict($asisten, $jadwal)) {
-                Log::debug("  ⏩ {$asisten->nama}: Skipped (Personal conflict)");
                 continue;
             }
 
             if ($this->isAsistenBusy($asisten->id_asisten, $jadwal->hari, $jadwal->jam_mulai, $jadwal->jam_selesai)) {
-                Log::debug("  ⏩ {$asisten->nama}: Skipped (Already busy)");
                 continue;
             }
 
             $score = 60; 
             
+            if ($isStrictVerified) {
+                $score += 20;
+            } elseif ($isSoftVerified) {
+                $score += 5;
+            }
+            
             $prefScore = $this->calculatePreferenceScore($asisten, $jadwal);
             $score += $prefScore;
 
             $score += 10; 
-
-            Log::debug("  📊 {$asisten->nama}: Final Score = {$score}");
 
             $ranked->push([
                 'asisten' => $asisten,

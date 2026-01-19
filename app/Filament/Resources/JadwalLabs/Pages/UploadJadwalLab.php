@@ -211,6 +211,26 @@ class UploadJadwalLab extends Page implements HasForms
                 $jmlMhsInt = (int) $csvJmlMhs;
                 $asistenButuh = $jmlMhsInt >= 20 ? 2 : 1;
 
+                $isConflict = JadwalLab::where('hari', $csvHari)
+                    ->where('id_ruangan', $ruangan->id_ruangan)
+                    ->where('id_semester', $semester->id_semester)
+                    ->where(function ($q) use ($csvMulai, $csvSelesai) {
+                        $q->where('jam_mulai', '<', $csvSelesai)
+                            ->where('jam_selesai', '>', $csvMulai);
+                    })
+                    ->exists();
+
+                if ($isConflict) {
+                    Notification::make()
+                        ->warning()
+                        ->title("Bentrok Ruangan Baris {$this->processedRows}")
+                        ->body("Ruang {$csvRuangan} penuh pada {$csvHari} {$csvMulai}-{$csvSelesai}")
+                        ->send();
+
+                    $file->next();
+                    continue;
+                }
+
                 JadwalLab::create([
                     "id_semester" => $semester->id_semester,
                     "matakuliah_id" => $matakuliah->id,
