@@ -5,6 +5,7 @@
                 <div class="flex justify-between h-16">
                     <div class="flex">
                         <div class="flex-shrink-0 flex items-center">
+                            <img class="block h-8 w-auto" src="{{ asset('favicon/android-chrome-192x192.png') }}" alt="Logo">
                             <a href="{{ url('/#hero') }}" class="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Lab Darmajaya</a>
                         </div>
 

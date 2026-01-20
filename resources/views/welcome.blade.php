@@ -145,7 +145,7 @@
             <div
                 class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:scale-105 hover:shadow-indigo-500/50">
                 <div class="overflow-hidden">
-                    <img src="https://lab.darmajaya.ac.id/public/uploads/team-member-16.jpg" alt="DANANG"
+                    <img src="{{ asset('Images/Homepage/Danang.jpg') }}" alt="DANANG"
                         class="w-full h-64 object-cover transition duration-300 group-hover:scale-110">
                 </div>
                 <div class="p-6">
@@ -157,7 +157,7 @@
             <div
                 class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:scale-105 hover:shadow-indigo-500/50">
                 <div class="overflow-hidden">
-                    <img src="https://lab.darmajaya.ac.id/public/uploads/team-member-17.jpg" alt="MEILIZA"
+                    <img src="{{ asset('Images/Homepage/Meiliza.jpg') }}"  alt="MEILIZA"
                         class="w-full h-64 object-cover transition duration-300 group-hover:scale-110">
                 </div>
                 <div class="p-6">
@@ -169,7 +169,7 @@
             <div
                 class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:scale-105 hover:shadow-indigo-500/50">
                 <div class="overflow-hidden">
-                    <img src="https://lab.darmajaya.ac.id/public/uploads/team-member-18.jpg" alt="FAUZAN"
+                    <img src="{{ asset('Images/Homepage/Fauzan.jpg') }}"  alt="FAUZAN"
                         class="w-full h-64 object-cover transition duration-300 group-hover:scale-110">
                 </div>
                 <div class="p-6">
@@ -181,7 +181,7 @@
             <div
                 class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition duration-300 transform hover:scale-105 hover:shadow-indigo-500/50">
                 <div class="overflow-hidden">
-                    <img src="https://lab.darmajaya.ac.id/public/uploads/team-member-22.png" alt="YUDA"
+                    <img src="{{ asset('Images/Homepage/Yuda.png') }}"  alt="YUDA"
                         class="w-full h-64 object-cover transition duration-300 group-hover:scale-110">
                 </div>
                 <div class="p-6">

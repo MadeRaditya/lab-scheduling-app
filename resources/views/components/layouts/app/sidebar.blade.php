@@ -11,7 +11,11 @@
         <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
         <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-            <x-app-logo />
+            <img src="{{ asset('favicon/android-chrome-192x192.png') }}" alt="{{ config('app.name') }}"
+                class="h-8 w-auto object-contain" />
+            <div class="ms-1 grid flex-1 text-start text-sm">
+                <span class="mb-0.5 truncate leading-tight font-semibold">Lab Scheduling App</span>
+            </div>
         </a>
 
         <div class="mb-6 px-2">
