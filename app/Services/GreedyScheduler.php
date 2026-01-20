@@ -52,7 +52,6 @@ class GreedyScheduler
                 'results' => $results,
                 'stats' => $stats,
             ];
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
@@ -69,7 +68,7 @@ class GreedyScheduler
     private function clearExistingSchedule(int $idSemester): void
     {
         $jadwalFinalIds = JadwalFinal::where('id_semester', $idSemester)->pluck('id_final');
-        
+
         if ($jadwalFinalIds->isNotEmpty()) {
             PenugasanAsistenFinal::whereIn('id_jadwal_final', $jadwalFinalIds)->delete();
             JadwalFinal::where('id_semester', $idSemester)->delete();
@@ -78,7 +77,7 @@ class GreedyScheduler
 
     private function loadJadwalLabs(int $idSemester)
     {
-        return JadwalLab::with(['matakuliah', 'ruangan', 'semester'])
+        return JadwalLab::with(['matakuliah.kompetensis', 'ruangan', 'semester'])
             ->where('id_semester', $idSemester)
             ->orderBy('hari')
             ->orderBy('jam_mulai')
@@ -87,7 +86,8 @@ class GreedyScheduler
 
     private function loadAsistens(int $idSemester)
     {
-        return Asisten::with(['matakuliahs', 'preferensiJadwalAsistens', 'kendalaAsistens'])
+        return Asisten::with(['matakuliahs', 'kompetensis', 'preferensiJadwalAsistens', 'kendalaAsistens'])
+            ->where('status_aktif', true)
             ->whereHas('asistenSemesters', function ($q) use ($idSemester) {
                 $q->where('id_semester', $idSemester)->where('status', 'Aktif');
             })
@@ -103,11 +103,18 @@ class GreedyScheduler
             'hari' => $jadwal->hari,
             'jam_mulai' => $jadwal->jam_mulai,
             'jam_selesai' => $jadwal->jam_selesai,
-            'metode_penjadwalan' => 'Greedy Algorithm (Verified MK)',
+            'metode_penjadwalan' => 'Greedy Algorithm (Smart Match)',
             'status' => 'Aktif',
         ]);
 
-        $ranked = $this->rankAsistensForJadwal($jadwal, $asistens);
+        $ranked = $this->rankAsistensForJadwal($jadwal, $asistens, false);
+
+        if ($ranked->isEmpty()) {
+            $ranked = $this->rankAsistensForJadwal($jadwal, $asistens, true);
+            if ($ranked->isNotEmpty()) {
+                $jadwalFinal->update(['catatan' => 'Panic Mode: Mengabaikan kendala pribadi.']);
+            }
+        }
 
         $needed = $jadwal->jumlah_asisten_dibutuhkan ?? 1;
         $top = $ranked->take($needed);
@@ -126,11 +133,11 @@ class GreedyScheduler
         if ($assignedCount == 0) {
             $jadwalFinal->update([
                 'status' => 'Dibatalkan',
-                'catatan' => 'Auto-generate: Tidak ditemukan asisten yang cocok.'
+                'catatan' => 'GAGAL: Tidak ada asisten dengan verifikasi ATAU skill yang cocok.',
             ]);
         } elseif ($assignedCount < $needed) {
             $jadwalFinal->update([
-                'catatan' => "Auto-generate: Kekurangan asisten (Dapat $assignedCount dari $needed)."
+                'catatan' => $jadwalFinal->catatan . " (Kurang Asisten: Dapat $assignedCount dari $needed).",
             ]);
         }
 
@@ -151,38 +158,43 @@ class GreedyScheduler
         PenugasanAsistenFinal::create([
             'id_jadwal_final' => $jadwalFinal->id_final,
             'id_asisten' => $asistenId,
-            'id_kompetensi' => null, 
+            'id_kompetensi' => null,
             'skor_kecocokan' => $rank['score'],
             'peran' => 'Asisten Utama',
             'status_kehadiran' => 'Terjadwal',
         ]);
 
         $this->markAsistenAsBusy(
-            $asistenId, 
-            $jadwalFinal->hari, 
-            $jadwalFinal->jam_mulai, 
+            $asistenId,
+            $jadwalFinal->hari,
+            $jadwalFinal->jam_mulai,
             $jadwalFinal->jam_selesai
         );
     }
 
-    private function rankAsistensForJadwal($jadwal, $asistens)
+    private function rankAsistensForJadwal($jadwal, $asistens, bool $ignorePersonalConflicts = false)
     {
         $ranked = collect();
         $namaMkTarget = $jadwal->matakuliah->nama_mk;
 
+        $requiredSkillIds = $jadwal->matakuliah->kompetensis->pluck('id_kompetensi')->toArray();
+
         foreach ($asistens as $asisten) {
             $isStrictVerified = $asisten->matakuliahs->contains('id', $jadwal->matakuliah_id);
-            
+
             $isSoftVerified = false;
             if (!$isStrictVerified) {
                 $isSoftVerified = $asisten->matakuliahs->contains('nama_mk', $namaMkTarget);
             }
 
-            if (!$isStrictVerified && !$isSoftVerified) {
-                continue; 
+            $isSkillMatched = false;
+            if (!$isStrictVerified && !$isSoftVerified && !empty($requiredSkillIds)) {
+                $isSkillMatched = $asisten->kompetensis->contains(function ($k) use ($requiredSkillIds) {
+                    return in_array($k->id_kompetensi, $requiredSkillIds);
+                });
             }
 
-            if ($this->hasPersonalConflict($asisten, $jadwal)) {
+            if (!$isStrictVerified && !$isSoftVerified && !$isSkillMatched) {
                 continue;
             }
 
@@ -190,18 +202,26 @@ class GreedyScheduler
                 continue;
             }
 
-            $score = 60; 
-            
+            if (!$ignorePersonalConflicts && $this->hasPersonalConflict($asisten, $jadwal)) {
+                continue;
+            }
+
+            $score = 50;
+
             if ($isStrictVerified) {
                 $score += 20;
             } elseif ($isSoftVerified) {
+                $score += 15;
+            } elseif ($isSkillMatched) {
                 $score += 5;
             }
-            
+
             $prefScore = $this->calculatePreferenceScore($asisten, $jadwal);
             $score += $prefScore;
 
-            $score += 10; 
+            if ($ignorePersonalConflicts) {
+                $score -= 15;
+            }
 
             $ranked->push([
                 'asisten' => $asisten,
@@ -233,8 +253,8 @@ class GreedyScheduler
 
         return match ($pref->tingkat_preferensi) {
             'Sangat Suka' => 30,
-            'Bisa' => 20,
-            'Kurang Suka' => 10,
+            'Bisa' => 15,
+            'Kurang Suka' => 5,
             default => 0,
         };
     }
