@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-auto">
             <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
                 <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">
                     <tr>

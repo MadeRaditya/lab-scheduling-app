@@ -27,15 +27,12 @@
     @livewireStyles
 </head>
 
-<body class="relative font-sans antialiased bg-white dark:bg-gray-900 h-full">
+<body class="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen">
 
     <livewire:navbar />
-    <div id="app" class="min-h-full">
-
-        <main>
-            @yield('content')
-        </main>
-    </div>
+    <main>
+        @yield('content')
+    </main>
 
     <livewire:footer />
     @livewireScripts

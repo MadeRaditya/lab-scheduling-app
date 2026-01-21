@@ -6,7 +6,7 @@
         </div>
 
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700">
-            <div class="overflow-x-auto touch-pan-x border border-zinc-200 rounded-lg dark:border-zinc-700">
+            <div class="overflow-auto border border-zinc-200 rounded-lg dark:border-zinc-700">
                 <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
                     <thead class="bg-zinc-50 dark:bg-zinc-800 text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">
                         <tr>

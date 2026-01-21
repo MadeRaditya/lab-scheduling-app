@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -40,11 +41,12 @@ class FortifyServiceProvider extends ServiceProvider
 
             $asisten = Asisten::where('email', $request->input(Fortify::username()))->first();
 
-            if (
-                $asisten &&
-                Hash::check($request->password, $asisten->password) &&
-                $asisten->status_aktif
-            ) {
+            if ($asisten && Hash::check($request->password, $asisten->password)) {
+                if (! $asisten->status_aktif) {
+                    throw ValidationException::withMessages([
+                        Fortify::username() => 'Akun Anda telah dinonaktifkan. Silakan hubungi Admin.',
+                    ]);
+                }
 
                 return $asisten;
             }
