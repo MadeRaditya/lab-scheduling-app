@@ -2,13 +2,13 @@
 
     <div class="lg:col-span-2">
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
-            
+
             <div>
                 <flux:heading size="lg">Riwayat Kepengurusan</flux:heading>
                 <flux:subheading>Sejarah status keaktifan dan jabatan per semester.</flux:subheading>
             </div>
 
-            <div class="overflow-hidden border border-zinc-200 rounded-lg dark:border-zinc-700">
+            <div class="overflow-x-auto touch-pan-x border border-zinc-200 rounded-lg dark:border-zinc-700">
                 <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
                     <thead class="bg-zinc-50 dark:bg-zinc-800 text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">
                         <tr>
@@ -57,7 +57,7 @@
                                         {{ \Carbon\Carbon::parse($h->tanggal_mulai)->format('d M Y') }}
                                     </div>
                                     <div class="text-xs text-zinc-500">
-                                        s/d 
+                                        s/d
                                         @if($h->tanggal_keluar)
                                             {{ \Carbon\Carbon::parse($h->tanggal_keluar)->format('d M Y') }}
                                         @else
@@ -88,14 +88,14 @@
     <div class="lg:col-span-1">
         <div class="sticky top-6">
             <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
-                
+
                 <div>
                     <flux:heading size="lg">{{ $editing ? 'Edit Riwayat' : 'Catat Semester' }}</flux:heading>
                     <flux:subheading>Update peran dan status semesteran.</flux:subheading>
                 </div>
 
                 <form wire:submit.prevent="{{ $editing ? 'update' : 'add' }}" class="space-y-4">
-                    
+
                     <flux:select wire:model="id_semester" label="Semester">
                         @foreach ($semesters as $sem)
                             <option value="{{ $sem->id_semester }}">{{ $sem->nama_semester }}</option>
@@ -127,7 +127,7 @@
                         @if ($editing)
                             <div class="flex gap-2">
                                 <flux:button type="submit" variant="primary" class="w-full">Update</flux:button>
-                                <flux:button type="button" wire:click="resetForm" class="w-full">Batal</flux:button> 
+                                <flux:button type="button" wire:click="resetForm" class="w-full">Batal</flux:button>
                             </div>
                         @else
                             <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>

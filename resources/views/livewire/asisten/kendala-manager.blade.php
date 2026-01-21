@@ -2,13 +2,13 @@
 
     <div class="lg:col-span-2">
         <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
-            
+
             <div>
                 <flux:heading size="lg">Kendala & Perizinan</flux:heading>
                 <flux:subheading>Ajukan izin sakit, cuti, atau kendala jadwal lainnya.</flux:subheading>
             </div>
 
-            <div class="overflow-hidden border border-zinc-200 rounded-lg dark:border-zinc-700">
+            <div class="overflow-x-auto touch-pan-x border border-zinc-200 rounded-lg dark:border-zinc-700">
                 <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
                     <thead class="bg-zinc-50 dark:bg-zinc-800 text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">
                         <tr>
@@ -24,8 +24,8 @@
                                 <td class="px-4 py-3">
                                     <div class="font-bold text-zinc-900 dark:text-zinc-100">{{ $k->tipe_kendala }}</div>
                                     <div class="text-xs text-zinc-500">
-                                        {{ \Carbon\Carbon::parse($k->tanggal_mulai)->format('d M') }} 
-                                        - 
+                                        {{ \Carbon\Carbon::parse($k->tanggal_mulai)->format('d M') }}
+                                        -
                                         {{ \Carbon\Carbon::parse($k->tanggal_selesai)->format('d M Y') }}
                                         @if($k->hari) <span class="ml-1 text-zinc-400">({{ $k->hari }})</span> @endif
                                     </div>
@@ -40,7 +40,7 @@
                                         $color = match($k->status) {
                                             'Disetujui' => 'green',
                                             'Ditolak'   => 'red',
-                                            default     => 'yellow' 
+                                            default     => 'yellow'
                                         };
                                         $icon = match($k->status) {
                                             'Disetujui' => 'check-circle',
@@ -79,14 +79,14 @@
     <div class="lg:col-span-1">
         <div class="sticky top-6">
             <div class="p-6 bg-white border border-zinc-200 rounded-xl dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
-                
+
                 <div>
                     <flux:heading size="lg">{{ $editing ? 'Edit Kendala' : 'Ajukan Kendala' }}</flux:heading>
                     <flux:subheading>Status pengajuan baru otomatis 'Pending'.</flux:subheading>
                 </div>
 
                 <form wire:submit.prevent="{{ $editing ? 'update' : 'add' }}" class="space-y-4">
-                    
+
                     <flux:select wire:model="id_semester" label="Semester">
                         @foreach ($semesters as $sem)
                             <option value="{{ $sem->id_semester }}">{{ $sem->nama_semester }}</option>
@@ -99,7 +99,7 @@
                         @endforeach
                     </flux:select>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <flux:input type="date" wire:model="tanggal_mulai" label="Mulai" />
                         <flux:input type="date" wire:model="tanggal_selesai" label="Selesai" />
                     </div>
@@ -118,7 +118,7 @@
                         @if ($editing)
                             <div class="flex gap-2">
                                 <flux:button type="submit" variant="primary" class="w-full">Update</flux:button>
-                                <flux:button type="button" wire:click="resetForm" class="w-full">Batal</flux:button> 
+                                <flux:button type="button" wire:click="resetForm" class="w-full">Batal</flux:button>
                             </div>
                         @else
                             <flux:button type="submit" variant="primary" class="w-full">Ajukan</flux:button>

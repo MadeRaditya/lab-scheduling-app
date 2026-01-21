@@ -1,12 +1,12 @@
 <div class="flex h-full w-full flex-1 flex-col gap-6">
-    
+
     <div>
         <flux:heading size="xl">Halo, {{ $user->nama }}! 👋</flux:heading>
         <flux:subheading>Selamat datang di panel asisten. Berikut ringkasan aktivitasmu.</flux:subheading>
     </div>
 
     <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-        
+
         <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
             <div class="flex items-center gap-3 mb-4">
                 <div class="p-2 bg-indigo-100 rounded-lg dark:bg-indigo-500/20">
@@ -14,7 +14,7 @@
                 </div>
                 <h3 class="font-semibold text-zinc-900 dark:text-zinc-100">Jadwal Berikutnya</h3>
             </div>
-            
+
             @if($nextSchedule)
                 <div class="space-y-1">
                     <p class="text-lg font-bold text-zinc-900 dark:text-white truncate">
@@ -75,7 +75,7 @@
                 </a>
             </div>
         </div>
-        
+
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-zinc-700 dark:text-zinc-300">
                 <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">

@@ -1,5 +1,5 @@
 <script>
-    (function() {
+    function applyTheme() {
         const savedTheme = localStorage.getItem('theme')
 
         const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -11,5 +11,10 @@
         } else {
             document.documentElement.classList.remove('dark');
         }
-    })();
+    }
+
+    applyTheme();
+
+    document.addEventListener('livewire:navigated', applyTheme);
+    
 </script>
