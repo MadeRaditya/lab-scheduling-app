@@ -15,7 +15,7 @@ class Ruangan extends Model
     protected $primaryKey = 'id_ruangan';
     public $timestamps = true;
     protected $fillable =
-    ['nama_ruangan', 'gedung', 'lantai', 'kapasitas', 'kategori', 'status'];
+    ['nama_ruangan', 'lokasi', 'kapasitas', 'kategori', 'status'];
 
     protected $casts = [
         'kategori' => RuanganKategori::class,

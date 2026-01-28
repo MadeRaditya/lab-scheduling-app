@@ -18,9 +18,7 @@ class RuangansTable
             ->columns([
                 TextColumn::make('nama_ruangan')
                     ->searchable(),
-                TextColumn::make('gedung')
-                    ->searchable(),
-                TextColumn::make('lantai')
+                TextColumn::make('lokasi')
                     ->searchable(),
                 TextColumn::make('kapasitas')
                     ->numeric(),

@@ -17,11 +17,8 @@ class RuanganForm
                 TextInput::make('nama_ruangan')
                     ->maxLength(100)
                     ->required(),
-                TextInput::make('gedung')
-                    ->maxLength(100)
-                    ->default(null),
-                TextInput::make('lantai')
-                    ->default(null),
+                TextInput::make('lokasi')
+                    ->maxLength(20),
                 TextInput::make('kapasitas')
                     ->required()
                     ->numeric()

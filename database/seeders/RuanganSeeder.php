@@ -38,12 +38,14 @@ class RuanganSeeder extends Seeder
         ];
 
         foreach ($rows as $r) {
+            $lokasiGedung = $r=['gedung']. '.' .$r['lantai'];
             DB::table('ruangans')->updateOrInsert(
                 ['nama_ruangan' => $r['nama_ruangan']],
                 [
-                    ...$r,
-                    'kategori' => $r['kategori']->value,
-                    'status'   => $r['status']->value,
+                    'lokasi'     => $lokasiGedung,
+                    'kapasitas'  => $r['kapasitas'],
+                    'kategori'   => $r['kategori'],
+                    'status'     => $r['status'],  
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]

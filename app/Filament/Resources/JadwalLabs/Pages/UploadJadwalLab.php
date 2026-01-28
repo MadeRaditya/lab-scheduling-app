@@ -49,7 +49,7 @@ class UploadJadwalLab extends Page implements HasForms
                 FileUpload::make("csv_file")
                     ->label("Upload CSV Jadwal (Full Data)")
                     ->helperText(
-                        "Format: tahun;jenis;ruang;gedung;lantai;kapasitas;kode_mk;nama_mk;sks;kelas;dosen;hari;mulai;selesai;jml_mhs;prioritas;status;kompetensi(|)",
+                        "Format: tahun;jenis;ruang;lokasi;kapasitas;kode_mk;nama_mk;sks;kelas;dosen;hari;mulai;selesai;jml_mhs;prioritas;status;kompetensi(|)",
                     )
                     ->acceptedFileTypes([
                         "text/csv",
@@ -128,21 +128,20 @@ class UploadJadwalLab extends Page implements HasForms
                 $csvTahun = trim($row[0]);
                 $csvJenisSem = trim($row[1]);
                 $csvRuangan = trim($row[2]);
-                $csvGedung = trim($row[3]);
-                $csvLantai = trim($row[4]);
-                $csvKapasitas = trim($row[5]);
-                $csvKodeMK = trim($row[6]);
-                $csvNamaMK = trim($row[7]);
-                $csvSKS = trim($row[8]);
-                $csvKelas = trim($row[9]);
-                $csvDosen = trim($row[10]);
-                $csvHari = trim($row[11]);
-                $csvMulai = trim($row[12]);
-                $csvSelesai = trim($row[13]);
-                $csvJmlMhs = trim($row[14]);
-                $csvPrioritas = trim($row[15]);
-                $csvStatusJadwal = trim($row[16]);
-                $csvKompetensi = $row[17] ?? null;
+                $csvLokasi = trim($row[3]);
+                $csvKapasitas = trim($row[4]);
+                $csvKodeMK = trim($row[5]);
+                $csvNamaMK = trim($row[6]);
+                $csvSKS = trim($row[7]);
+                $csvKelas = trim($row[8]);
+                $csvDosen = trim($row[9]);
+                $csvHari = trim($row[10]);
+                $csvMulai = trim($row[11]);
+                $csvSelesai = trim($row[12]);
+                $csvJmlMhs = trim($row[13]);
+                $csvPrioritas = trim($row[14]);
+                $csvStatusJadwal = trim($row[15]);
+                $csvKompetensi = $row[16] ?? null;
 
                 $jenisEnum =
                     SemesterJenis::tryFrom($csvJenisSem) ??
@@ -168,8 +167,7 @@ class UploadJadwalLab extends Page implements HasForms
                 $ruangan = Ruangan::updateOrCreate(
                     ["nama_ruangan" => $csvRuangan],
                     [
-                        "gedung" => $csvGedung,
-                        "lantai" => (int) $csvLantai,
+                        "lokasi"=>$csvLokasi,
                         "kapasitas" => (int) $csvKapasitas,
                         "kategori" => $kategoriEnum,
                         "status" => RuanganStatus::AKTIF,

@@ -22,6 +22,16 @@ class MatakuliahsTable
                     ->sortable()
                     ->searchable()
                     ->wrap(),
+                TextColumn::make('asistens_count')
+                    ->counts('asistens')
+                    ->label('Jml Asisten')
+                    ->badge()
+                    ->color(fn(string $state): string => match (true) {
+                        $state == 0 => 'danger',
+                        $state < 2  => 'warning',
+                        default     => 'success',
+                    })
+                    ->sortable(),
                 TextColumn::make('kelas')
                     ->badge()
                     ->color("info")

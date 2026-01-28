@@ -20,24 +20,14 @@ class AsistensTable
             ->columns([
                 TextColumn::make('nama')
                     ->searchable(),
-                TextColumn::make('npm')
-                    ->searchable(),
                 TextColumn::make('jurusan')
                     ->searchable(),
                 TextColumn::make('kompetensis.nama_kompetensi')
                     ->listWithLineBreaks()
                     ->limitList(3) 
                     ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
-                TextColumn::make('no_telepon')
-                    ->searchable(),
                 IconColumn::make('status_aktif')
                     ->boolean(),
-                TextColumn::make('tanggal_daftar')
-                    ->date()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
