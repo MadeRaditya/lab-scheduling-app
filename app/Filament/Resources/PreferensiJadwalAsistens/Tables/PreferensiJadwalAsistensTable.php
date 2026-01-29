@@ -28,8 +28,6 @@ class PreferensiJadwalAsistensTable
                     ->sortable(),
                 TextColumn::make('tingkat_preferensi')
                     ->searchable(),
-                TextColumn::make('keterangan')
-                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

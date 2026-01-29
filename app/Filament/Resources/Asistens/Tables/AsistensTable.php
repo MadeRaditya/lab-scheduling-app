@@ -23,8 +23,23 @@ class AsistensTable
                 TextColumn::make('jurusan')
                     ->searchable(),
                 TextColumn::make('kompetensis.nama_kompetensi')
+                    ->label('Kompetensi / Status')
                     ->listWithLineBreaks()
-                    ->limitList(3) 
+                    ->limitList(3)
+                    ->badge()
+                    ->state(function (Asisten $record) {
+                        $isVerified = $record->matakuliahs()->exists();
+
+                        if (!$isVerified) {
+                            return ['Perlu Verifikasi'];
+                        }
+
+                        return $record->kompetensis->pluck('nama_kompetensi');
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'Perlu Verifikasi' => 'danger',
+                        default => 'primary',
+                    })
                     ->searchable(),
                 IconColumn::make('status_aktif')
                     ->boolean(),
@@ -43,10 +58,10 @@ class AsistensTable
             ->recordActions([
                 EditAction::make(),
                 Action::make('verifikasi')
-                    ->label('Verifikasi Kualifikasi')
+                    ->label('Verifikasi')
                     ->icon('heroicon-m-check-badge')
                     ->color('warning')
-                    ->url(fn (Asisten $record) => AsistenResource::getUrl('kualifikasi', ['record' => $record])),
+                    ->url(fn(Asisten $record) => AsistenResource::getUrl('kualifikasi', ['record' => $record])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

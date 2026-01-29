@@ -5,15 +5,12 @@ namespace App\Filament\Resources\Asistens\Pages;
 use App\Filament\Resources\Asistens\AsistenResource;
 use App\Models\Asisten;
 use App\Models\Matakuliah;
-use Filament\Actions\AttachAction;
-use Filament\Actions\DetachAction;
-use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\ImageEntry as ComponentsImageEntry;
-use Filament\Infolists\Components\TextEntry as ComponentsTextEntry;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\ImageEntry;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextEntry;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -23,7 +20,6 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use Filament\Infolists\Infolists;
 
 class KelolaKualifikasi extends Page implements HasSchemas, HasTable
 {
@@ -31,15 +27,14 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
     use InteractsWithTable;
 
     protected static string $resource = AsistenResource::class;
+    protected static ?string $title = 'Verifikasi Kualifikasi Asisten';
+
+    public Asisten $record;
 
     public function getView(): string
     {
-        return "filament.resources.asistens.pages.kelola-kualifikasi";
+        return 'filament.resources.asistens.pages.kelola-kualifikasi';
     }
-
-    protected static ?string $title = "Verifikasi Kualifikasi Asisten";
-
-    public Asisten $record;
 
     public function mount(Asisten $record)
     {
@@ -49,33 +44,22 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
     public function assistantInfolist(Schema $schema): Schema
     {
         return $schema->record($this->record)->components([
-            Section::make("Kartu Identitas Asisten")
+            Section::make('Kartu Identitas Asisten')
                 ->columns(4)
                 ->components([
-                    ComponentsImageEntry::make("foto")
-                        ->defaultImageUrl(
-                            "https://ui-avatars.com/api/?name=" .
-                                urlencode($this->record->nama),
-                        )
+                    ImageEntry::make('foto')
+                        ->defaultImageUrl('https://ui-avatars.com/api/?name=' . urlencode($this->record->nama))
                         ->circular()
                         ->columnSpan(1),
-
                     Section::make()
                         ->columnSpan(3)
                         ->components([
-                            ComponentsTextEntry::make("nama")
-                                ->size("lg")
-                                ->weight("bold")
-                                ->label("Nama Lengkap"),
-                            ComponentsTextEntry::make("npm")
-                                ->label("NIM")
-                                ->copyable(),
-                            ComponentsTextEntry::make(
-                                "kompetensis.nama_kompetensi",
-                            )
-                                ->label("Kompetensi Dasar")
+                            TextEntry::make('nama')->size('lg')->weight('bold')->label('Nama Lengkap'),
+                            TextEntry::make('npm')->label('NIM')->copyable(),
+                            TextEntry::make('kompetensis.nama_kompetensi')
+                                ->label('Kompetensi Dasar')
                                 ->badge()
-                                ->color("success")
+                                ->color('success')
                                 ->listWithLineBreaks(),
                         ]),
                 ]),
@@ -85,82 +69,119 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->relationship(fn() => $this->record->matakuliahs())
-            ->heading("Daftar Mata Kuliah Verified")
+            ->query(
+                Matakuliah::query()->fromSub(
+                    Matakuliah::select('nama_mk', DB::raw('MIN(id) as id'))
+                        ->groupBy('nama_mk'),
+                    'matakuliahs'
+                )
+            )
+            ->defaultSort('nama_mk', 'asc')
+            ->heading('Daftar Mata Kuliah Tersedia')
+            ->description('Klik tombol aksi untuk memverifikasi asisten pada SELURUH kelas mata kuliah tersebut.')
             ->columns([
-                TextColumn::make("kode_mk")->label("Kode")->searchable(),
-                TextColumn::make("nama_mk")->label("Mata Kuliah")->searchable(),
-                TextColumn::make("kelas")
-                    ->label("kelas")
+                TextColumn::make('nama_mk')
+                    ->label('Mata Kuliah')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('jumlah_kelas')
+                    ->label('Total Kelas')
+                    ->state(fn (Matakuliah $mk) =>
+                        Matakuliah::where('nama_mk', $mk->nama_mk)->count()
+                    )
+                    ->badge(),
+
+                TextColumn::make('status_verifikasi')
+                    ->label('Status')
                     ->badge()
-                    ->color("info"),
-                TextColumn::make("sks")->label("SKS"),
-                TextColumn::make("dosen")->label("Dosen")->limit(20),
-                TextColumn::make("semester.nama_semester")->label("Semester"),
+                    ->state(function (Matakuliah $mk) {
+                        $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id');
+
+                        $count = DB::table('asisten_matakuliah')
+                            ->where('id_asisten', $this->record->id_asisten)
+                            ->whereIn('matakuliah_id', $ids)
+                            ->count();
+
+                        if ($count === 0) return 'Belum';
+                        if ($count === $ids->count()) return 'Terverifikasi';
+                        return 'Parsial';
+                    })
+                    ->color(fn (string $state) => match ($state) {
+                        'Terverifikasi' => 'success',
+                        'Parsial' => 'warning',
+                        'Belum' => 'danger',
+                    }),
             ])
-            ->headerActions([
-                AttachAction::make()
-                    ->label("Tambah Kualifikasi")
-                    ->form(fn(AttachAction $action): array => [
-                        $action->getRecordSelect()
-                            ->label("Pilih Mata Kuliah")
-                            ->searchable()
-                            ->preload()
+            ->actions([
+                Action::make('verifikasi')
+                    ->label('Verifikasi Semua')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Verifikasi Kualifikasi')
+                    ->modalDescription(fn (Matakuliah $mk) =>
+                        "Apakah Anda yakin ingin memberikan kualifikasi untuk mata kuliah '{$mk->nama_mk}'?"
+                    )
+                    ->visible(function (Matakuliah $mk) {
+                        $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id');
 
-                            ->options(function () {
-                                $asistenId = $this->record->id_asisten;
+                        $count = DB::table('asisten_matakuliah')
+                            ->where('id_asisten', $this->record->id_asisten)
+                            ->whereIn('matakuliah_id', $ids)
+                            ->count();
 
-                                $kompetensiIds = DB::table("asisten_kompetensi")
-                                    ->where("id_asisten", $asistenId)
-                                    ->pluck("id_kompetensi");
+                        return $count < $ids->count();
+                    })
+                    ->action(function (Matakuliah $mk) {
+                        $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id')->toArray();
 
-                                return Matakuliah::query()
-                                    ->whereHas("kompetensis", function ($q) use ($kompetensiIds) {
-                                        $q->whereIn("kompetensis.id_kompetensi", $kompetensiIds);
-                                    })
-                                    ->limit(50) 
-                                    ->get()
-                                    ->mapWithKeys(function ($mk) {
-                                        return [
-                                            $mk->id => "{$mk->kode_mk} - {$mk->nama_mk} ({$mk->kelas}) - {$mk->dosen}",
-                                        ];
-                                    })
-                                    ->toArray();
-                            })
+                        $this->record->matakuliahs()->syncWithoutDetaching($ids);
 
-                            ->getSearchResultsUsing(function (string $search) {
-                                $asistenId = $this->record->id_asisten;
+                        Notification::make()
+                            ->title('Berhasil Diverifikasi')
+                            ->body('Asisten kini terverifikasi untuk ' . count($ids) . " kelas {$mk->nama_mk}.")
+                            ->success()
+                            ->send();
+                    }),
 
-                                $kompetensiIds = DB::table("asisten_kompetensi")
-                                    ->where("id_asisten", $asistenId)
-                                    ->pluck("id_kompetensi");
+                Action::make('batal_verifikasi')
+                    ->label('Hapus Kualifikasi')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalDescription('Ini akan menghapus akses asisten dari seluruh kelas mata kuliah ini.')
+                    ->visible(fn (Matakuliah $mk) =>
+                        DB::table('asisten_matakuliah')
+                            ->where('id_asisten', $this->record->id_asisten)
+                            ->whereIn(
+                                'matakuliah_id',
+                                Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id')
+                            )
+                            ->exists()
+                    )
+                    ->action(function (Matakuliah $mk) {
+                        $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id')->toArray();
 
-                                return Matakuliah::query()
-                                    ->whereHas("kompetensis", function ($q) use ($kompetensiIds) {
-                                        $q->whereIn("kompetensis.id_kompetensi", $kompetensiIds);
-                                    })
-                                    ->where(function ($q) use ($search) {
-                                        $q->where('nama_mk', 'like', "%{$search}%")
-                                            ->orWhere('kode_mk', 'like', "%{$search}%")
-                                            ->orWhere('dosen', 'like', "%{$search}%");
-                                    })
-                                    ->limit(50)
-                                    ->get()
-                                    ->mapWithKeys(function ($mk) {
-                                        return [
-                                            $mk->id => "{$mk->kode_mk} - {$mk->nama_mk} ({$mk->kelas}) - {$mk->dosen}",
-                                        ];
-                                    })
-                                    ->toArray();
-                            })
+                        $this->record->matakuliahs()->detach($ids);
 
-                            ->getOptionLabelUsing(function ($value): ?string {
-                                $mk = Matakuliah::find($value);
-                                return $mk ? "{$mk->kode_mk} - {$mk->nama_mk} ({$mk->kelas}) - {$mk->dosen}" : null;
-                            }),
-                    ])
-                    ->multiple(),
+                        Notification::make()
+                            ->title('Kualifikasi Dihapus')
+                            ->success()
+                            ->send();
+                    }),
             ])
-            ->actions([DetachAction::make()->label("Hapus")]);
+            ->modifyQueryUsing(function (Builder $query) {
+                $kompetensiIds = DB::table('asisten_kompetensi')
+                    ->where('id_asisten', $this->record->id_asisten)
+                    ->pluck('id_kompetensi');
+
+                $query->whereExists(function ($q) use ($kompetensiIds) {
+                    $q->select(DB::raw(1))
+                        ->from('matakuliah_kompetensi')
+                        ->whereColumn('matakuliah_kompetensi.matakuliah_id', 'matakuliahs.id')
+                        ->whereIn('matakuliah_kompetensi.id_kompetensi', $kompetensiIds);
+                });
+            });
     }
 }

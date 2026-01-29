@@ -16,61 +16,65 @@ class MatakuliahsTable
             ->columns([
                 TextColumn::make('kode_mk')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->description(fn($record) => "SKS: {$record->sks}"),
+
                 TextColumn::make('nama_mk')
                     ->label("Mata Kuliah")
                     ->sortable()
                     ->searchable()
                     ->wrap(),
+
+                TextColumn::make('kelas')
+                    ->badge()
+                    ->color("info")
+                    ->sortable()
+                    ->searchable()
+                    ->alignCenter(),
+
                 TextColumn::make('asistens_count')
                     ->counts('asistens')
-                    ->label('Jml Asisten')
+                    ->label('Asisten')
                     ->badge()
                     ->color(fn(string $state): string => match (true) {
                         $state == 0 => 'danger',
                         $state < 2  => 'warning',
                         default     => 'success',
                     })
+                    ->alignCenter()
                     ->sortable(),
-                TextColumn::make('kelas')
-                    ->badge()
-                    ->color("info")
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('sks')
-                    ->numeric()
-                    ->sortable(),
+
                 TextColumn::make('dosen')
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap(),
+
                 TextColumn::make('semester.nama_semester')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('kompetensis.nama_kompetensi')
                     ->label("Kompetensi")
                     ->badge()
                     ->color("success")
                     ->listWithLineBreaks()
-                    ->limitList(3)
+                    ->limitList(2)
                     ->expandableLimitedList()
-                    ->searchable(),
+                    ->wrap(),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
-            ->recordActions([
-                EditAction::make(),
-            ])
+            ->filters([])
+            ->recordActions([EditAction::make()])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                BulkActionGroup::make([DeleteBulkAction::make()]),
             ]);
     }
 }

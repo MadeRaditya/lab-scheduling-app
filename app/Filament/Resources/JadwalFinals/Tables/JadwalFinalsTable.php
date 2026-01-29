@@ -22,42 +22,32 @@ class JadwalFinalsTable
             ->defaultSort('hari', 'desc')
             ->columns([
                 TextColumn::make("semester.nama_semester")
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make("matakuliah.nama_mk")
                     ->label('Mata Kuliah')
-                    ->description(fn(JadwalFinal $record) => "{$record->matakuliah->kode_mk} - {$record->matakuliah->dosen}")
+                    ->description(fn(JadwalFinal $record) => "{$record->matakuliah->kode_mk} - Kelas {$record->matakuliah->kelas} - {$record->matakuliah->dosen}")
                     ->searchable()
                     ->wrap(),
-
-                TextColumn::make("matakuliah.kelas")
-                    ->label('Kelas')
-                    ->badge()
-                    ->color('info')
-                    ->sortable()
-                    ->searchable(),
 
                 TextColumn::make("ruangan.nama_ruangan")
                     ->sortable()
                     ->badge()
                     ->color('success'),
 
-                TextColumn::make("hari")
-                    ->searchable(),
-
-                TextColumn::make("jam_mulai")
-                    ->label('Waktu')
-                    ->formatStateUsing(fn(JadwalFinal $record) => "{$record->jam_mulai} - {$record->jam_selesai}")
-                    ->sortable(),
+                TextColumn::make("jadwal_lengkap")
+                    ->label("Jadwal")
+                    ->state(fn(JadwalFinal $record) => "{$record->hari}, {$record->jam_mulai} - {$record->jam_selesai}")
+                    ->wrap(),
 
                 TextColumn::make("penugasanAsistenFinals.asisten.nama")
                     ->label("Asisten")
                     ->listWithLineBreaks()
-                    ->limitList(3)
+                    ->limitList(2)
                     ->expandableLimitedList()
                     ->searchable()
                     ->badge()
+                    ->wrap()
                     ->default("Belum Ada")
                     ->color(fn($state) => $state === "Belum Ada" ? "danger" : "primary"),
 
@@ -70,7 +60,8 @@ class JadwalFinalsTable
                         $state >= 60 => 'warning',
                         default => 'danger',
                     })
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make("status")
                     ->badge()
@@ -84,13 +75,13 @@ class JadwalFinalsTable
             ])
             ->filters([
                 TernaryFilter::make('status_asisten')
-                ->label('Status Asisten')
+                    ->label('Status Asisten')
                     ->placeholder('Semua Jadwal')
                     ->trueLabel('Sudah Ada Asisten')
                     ->falseLabel('Belum Ada Asisten')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereHas('penugasanAsistenFinals'),
-                        false: fn (Builder $query) => $query->whereDoesntHave('penugasanAsistenFinals'),
+                        true: fn(Builder $query) => $query->whereHas('penugasanAsistenFinals'),
+                        false: fn(Builder $query) => $query->whereDoesntHave('penugasanAsistenFinals'),
                     ),
             ])
             ->recordActions([EditAction::make()])
