@@ -6,6 +6,7 @@ use App\Enums\JurusanAsisten;
 use App\Filament\Resources\Asistens\AsistenResource;
 use App\Models\Asisten;
 use App\Models\Kompetensi;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -46,6 +47,9 @@ class UploadAsisten extends Page implements HasForms
             ->schema([
                 FileUpload::make("csv_file")
                     ->label("Upload CSV Asisten")
+                    ->helperText(
+                        "Format: Nama Asisten;NPM;Jurusan;Email;NoHP;Status Aktif;kompetensi(|)",
+                    )
                     ->acceptedFileTypes([
                         "text/csv",
                         "application/csv",
@@ -249,5 +253,34 @@ class UploadAsisten extends Page implements HasForms
                 ->body("{$this->successCount} data berhasil diimport")
                 ->send();
         }
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('download_template')
+                ->label('Download Template CSV')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->action(function () {
+                    $headers = [
+                        'Content-Type' => 'text/csv',
+                        'Content-Disposition' => 'attachment; filename="template_asisten.csv"',
+                    ];
+
+                    $columns = ['Nama Asisten', 'NPM', 'Jurusan', 'Email', 'NoHP', 'Status Aktif', 'Kompetensi'];
+                    
+                    $sample = ['Budi Santoso', '2022001', 'Teknik Informatika', 'budi@example.com', '08123456789', '1', 'Laravel|Flutter'];
+
+                    $callback = function () use ($columns, $sample) {
+                        $file = fopen('php://output', 'w');
+                        fputcsv($file, $columns, ';'); 
+                        fputcsv($file, $sample, ';');
+                        fclose($file);
+                    };
+
+                    return response()->stream($callback, 200, $headers);
+                }),
+        ];
     }
 }

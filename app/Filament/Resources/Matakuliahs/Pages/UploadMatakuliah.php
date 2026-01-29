@@ -8,6 +8,7 @@ use App\Filament\Resources\Matakuliahs\MatakuliahResource;
 use App\Models\Kompetensi;
 use App\Models\Matakuliah;
 use App\Models\Semester;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -202,5 +203,33 @@ class UploadMatakuliah extends Page implements HasForms
                 ->body("{$this->successCount} matakuliah berhasil diproses.")
                 ->send();
         }
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('download_template')
+                ->label('Download Template MK')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->action(function () {
+                    $headers = [
+                        'Content-Type' => 'text/csv',
+                        'Content-Disposition' => 'attachment; filename="template_matakuliah.csv"',
+                    ];
+
+                    $columns = ['KodeMK', 'NamaMK', 'SKS', 'Kelas', 'Dosen', 'Tahun', 'Jenis', 'Kompetensi(|)', 'Deskripsi'];
+                    $sample = ['IF202', 'Basis Data', '2', 'B', 'Bu Ani', '2025/2026', 'Ganjil', 'Programming'];
+
+                    $callback = function () use ($columns, $sample) {
+                        $file = fopen('php://output', 'w');
+                        fputcsv($file, $columns, ';');
+                        fputcsv($file, $sample, ';');
+                        fclose($file);
+                    };
+
+                    return response()->stream($callback, 200, $headers);
+                }),
+        ];
     }
 }

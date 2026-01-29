@@ -12,6 +12,7 @@ use App\Enums\SemesterJenis;
 use App\Enums\SemesterStatus;
 use App\Enums\RuanganKategori;
 use App\Enums\RuanganStatus;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -49,7 +50,7 @@ class UploadJadwalLab extends Page implements HasForms
                 FileUpload::make("csv_file")
                     ->label("Upload CSV Jadwal (Full Data)")
                     ->helperText(
-                        "Format: tahun;jenis;ruang;lokasi;kapasitas;kode_mk;nama_mk;sks;kelas;dosen;hari;mulai;selesai;jml_mhs;prioritas;status;kompetensi(|)",
+                        "Format: tahun;jenis_sem;nama_ruang;lokasi;kapasitas;kode_mk;nama_mk;sks;kelas;dosen;hari;jam_mulai;jam_selesai;jml_mhs;prioritas;status;kompetensi(|)",
                     )
                     ->acceptedFileTypes([
                         "text/csv",
@@ -269,5 +270,42 @@ class UploadJadwalLab extends Page implements HasForms
                 ->body("{$this->successCount} jadwal berhasil diimport.")
                 ->send();
         }
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('download_template')
+                ->label('Download Template Jadwal')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->action(function () {
+                    $headers = [
+                        'Content-Type' => 'text/csv',
+                        'Content-Disposition' => 'attachment; filename="template_jadwal_lab.csv"',
+                    ];
+
+                    $columns = [
+                        'Tahun', 'Jenis_sem', 'Nama_ruang', 'Lokasi', 'Kapasitas', 
+                        'KodeMK', 'NamaMK', 'SKS', 'Kelas', 'Dosen', 
+                        'Hari', 'Jam_mulai', 'Jam_selesai', 'JmlMhs', 'Prioritas', 'Status', 'Kompetensi'
+                    ];
+                    
+                    $sample = [
+                        '2025/2026', 'Ganjil', 'Lab RPL', 'G.2', '40', 
+                        'IF101', 'Pemrograman Web', '3', 'A', 'Pak Budi', 
+                        'Senin', '08:00', '10:00', '35', 'Tinggi', 'Draft', 'PHP|Laravel'
+                    ];
+
+                    $callback = function () use ($columns, $sample) {
+                        $file = fopen('php://output', 'w');
+                        fputcsv($file, $columns, ';');
+                        fputcsv($file, $sample, ';');
+                        fclose($file);
+                    };
+
+                    return response()->stream($callback, 200, $headers);
+                }),
+        ];
     }
 }
