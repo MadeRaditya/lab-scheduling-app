@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Asisten\JadwalSaya;
+use App\Livewire\Auth\Register;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
@@ -9,9 +9,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// Route::view('dashboard', 'dashboard')
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
+Route::get('/register', Register::class)->name('register');
 
 Route::middleware(['auth:asisten', 'verified'])->group(function () {
     Route::redirect('settings', 'settings/profile');

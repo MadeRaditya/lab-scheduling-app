@@ -24,6 +24,7 @@ class Asisten extends Authenticatable
         "password",
         "no_telepon",
         "status_aktif",
+        "tanggal_daftar",
     ];
     protected $hidden = ["password", "remember_token"];
     protected $casts = [
