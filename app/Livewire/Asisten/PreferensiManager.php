@@ -34,7 +34,7 @@ class PreferensiManager extends Component
         
         $this->id_semester = $this->semesters->first()->id_semester ?? null;
         
-        $this->tingkat_preferensi = PreferensiTingkat::Bisa->value; 
+        $this->tingkat_preferensi = PreferensiTingkat::Bersedia->value; 
     }
 
     public function getStandardSlotsProperty()
@@ -85,7 +85,7 @@ class PreferensiManager extends Component
                             'hari' => $hari,
                             'jam_mulai' => $start,
                             'jam_selesai' => $end,
-                            'tingkat_preferensi' => PreferensiTingkat::Bisa->value,
+                            'tingkat_preferensi' => PreferensiTingkat::Bersedia->value,
                             'keterangan' => 'Generated automatically',
                         ]);
                         $count++;
@@ -106,7 +106,7 @@ class PreferensiManager extends Component
     public function resetForm()
     {
         $this->reset(['hari', 'jam_mulai', 'jam_selesai', 'tingkat_preferensi', 'keterangan', 'editing', 'edit_id', 'bulk_selected_slots']);
-        $this->tingkat_preferensi = PreferensiTingkat::Bisa->value; 
+        $this->tingkat_preferensi = PreferensiTingkat::Bersedia->value; 
     }
 
     public function add()

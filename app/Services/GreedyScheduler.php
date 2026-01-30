@@ -176,7 +176,6 @@ class GreedyScheduler
     {
         $ranked = collect();
         $namaMkTarget = $jadwal->matakuliah->nama_mk;
-
         $requiredSkillIds = $jadwal->matakuliah->kompetensis->pluck('id_kompetensi')->toArray();
 
         foreach ($asistens as $asisten) {
@@ -206,26 +205,31 @@ class GreedyScheduler
                 continue;
             }
 
-            $score = 50;
+            $score = 0;
 
             if ($isStrictVerified) {
-                $score += 20;
+                $score += 50;
             } elseif ($isSoftVerified) {
-                $score += 15;
+                $score += 30;
             } elseif ($isSkillMatched) {
-                $score += 5;
+                $score += 15;
             }
 
             $prefScore = $this->calculatePreferenceScore($asisten, $jadwal);
+            
+            if ($prefScore == 0 && !$ignorePersonalConflicts) {
+                continue; 
+            }
+            
             $score += $prefScore;
 
             if ($ignorePersonalConflicts) {
-                $score -= 15;
+                $score -= 20;
             }
 
             $ranked->push([
                 'asisten' => $asisten,
-                'score' => $score,
+                'score' => max(0, $score),
             ]);
         }
 
@@ -252,9 +256,10 @@ class GreedyScheduler
         }
 
         return match ($pref->tingkat_preferensi) {
-            'Sangat Suka' => 30,
-            'Bisa' => 15,
-            'Kurang Suka' => 5,
+            'Prioritas Utama' => 50,
+            'Bersedia' => 35,
+            'Cadangan' => 10,
+            'Tidak Bersedia' => 0,
             default => 0,
         };
     }

@@ -46,10 +46,10 @@
                             <td class="px-4 py-3">
                                 @php
                                     $color = match ($p->tingkat_preferensi) {
-                                        \App\Enums\PreferensiTingkat::SangatSuka->value => 'green',
-                                        \App\Enums\PreferensiTingkat::Bisa->value => 'blue',
-                                        \App\Enums\PreferensiTingkat::KurangSuka->value => 'yellow',
-                                        \App\Enums\PreferensiTingkat::TidakBisa->value => 'red',
+                                        \App\Enums\PreferensiTingkat::PrioritasUtama->value => 'emerald',
+                                        \App\Enums\PreferensiTingkat::Bersedia->value => 'blue',
+                                        \App\Enums\PreferensiTingkat::Cadangan->value => 'orange',
+                                        \App\Enums\PreferensiTingkat::TidakBersedia->value => 'red',
                                         default => 'zinc',
                                     };
                                 @endphp
