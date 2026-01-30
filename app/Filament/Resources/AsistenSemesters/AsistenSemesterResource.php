@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class AsistenSemesterResource extends Resource
@@ -22,7 +23,17 @@ class AsistenSemesterResource extends Resource
     protected static string | UnitEnum | null $navigationGroup  = 'Manajemen Asisten';
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $recordTitleAttribute = 'Asisten aktif';
+    protected static ?string $recordTitleAttribute = 'id_asisten_semester';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['asisten.nama', 'asisten.npm'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->asisten->nama . ' (' . $record->semester->nama_semester . ')';
+    }
 
     public static function form(Schema $schema): Schema
     {

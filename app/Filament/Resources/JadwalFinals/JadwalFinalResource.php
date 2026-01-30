@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class JadwalFinalResource extends Resource
@@ -24,7 +25,22 @@ class JadwalFinalResource extends Resource
     protected static ?int $navigationSort = 1;
 
 
-    protected static ?string $recordTitleAttribute = 'Jadwal Final';
+    protected static ?string $recordTitleAttribute = 'hari';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'hari', 
+            'matakuliah.nama_mk', 
+            'matakuliah.dosen',   
+            'ruangan.nama_ruangan',
+        ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->matakuliah->nama_mk . ' - ' . $record->hari . ' (' . $record->jam_mulai . ')';
+    }
 
     public static function form(Schema $schema): Schema
     {

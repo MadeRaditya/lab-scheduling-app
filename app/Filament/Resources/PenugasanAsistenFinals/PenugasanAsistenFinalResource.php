@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class PenugasanAsistenFinalResource extends Resource
@@ -22,7 +23,20 @@ class PenugasanAsistenFinalResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = "Manajemen Asisten";
     protected static ?int $navigationSort = 4;
 
-    protected static ?string $recordTitleAttribute = "Penugasan Asisten";
+    protected static ?string $recordTitleAttribute = "id_penugasan";
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'asisten.nama', 
+            'jadwalFinal.matakuliah.nama_mk'
+        ];
+    }
+    
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "Tugas: " . $record->asisten->nama . " - " . $record->jadwalFinal->matakuliah->nama_mk;
+    }
 
     public static function form(Schema $schema): Schema
     {

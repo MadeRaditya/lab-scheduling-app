@@ -22,7 +22,7 @@ class RuanganResource extends Resource
     protected static string | UnitEnum | null $navigationGroup  = 'Data Master';
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $recordTitleAttribute = 'Ruangan Laboratorium';
+    protected static ?string $recordTitleAttribute = 'nama_ruangan';
 
     public static function form(Schema $schema): Schema
     {

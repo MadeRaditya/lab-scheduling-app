@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class MatakuliahResource extends Resource
@@ -25,6 +26,20 @@ class MatakuliahResource extends Resource
     protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'nama_mk';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'nama_mk', 
+            'kode_mk',
+            'dosen', 
+        ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "{$record->nama_mk} ({$record->kode_mk}) - {$record->dosen}";
+    }
 
     public static function form(Schema $schema): Schema
     {

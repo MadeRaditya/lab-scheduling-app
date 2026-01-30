@@ -22,7 +22,7 @@ class CalonAsistenResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = "Manajemen Asisten";
     protected static ?int $navigationSort = 7;
 
-    protected static ?string $recordTitleAttribute = 'Calon Asiten Laboratorium';
+    protected static ?string $recordTitleAttribute = 'nama';
 
     public static function form(Schema $schema): Schema
     {

@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class KendalaAsistenResource extends Resource
@@ -22,7 +24,22 @@ class KendalaAsistenResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = "Manajemen Asisten";
     protected static ?int $navigationSort = 6;
 
-    protected static ?string $recordTitleAttribute = "Kendala Asisten";
+    protected static ?string $recordTitleAttribute = "hari";
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'asisten.nama',
+            'alasan',
+            'hari',
+        ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "Kendala: {$record->asisten->nama} - {$record->hari} (" 
+        . Str::limit($record->alasan, 20) . ")";
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -37,8 +54,8 @@ class KendalaAsistenResource extends Resource
     public static function getRelations(): array
     {
         return [
-                //
-            ];
+            //
+        ];
     }
 
     public static function getPages(): array

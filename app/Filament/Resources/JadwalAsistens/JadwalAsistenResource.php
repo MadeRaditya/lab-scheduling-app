@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class JadwalAsistenResource extends Resource
@@ -24,7 +25,20 @@ class JadwalAsistenResource extends Resource
 
     protected static ?string $navigationLabel = "Jadwal KRS Asisten";
 
-    protected static ?string $recordTitleAttribute = "Jadwal_Asisten";
+    protected static ?string $recordTitleAttribute = "hari";
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'asisten.nama',
+            'asisten.npm',
+        ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return "KRS {$record->asisten->nama} - ({$record->hari})";
+    }
 
     public static function form(Schema $schema): Schema
     {

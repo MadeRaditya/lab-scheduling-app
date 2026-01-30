@@ -30,7 +30,7 @@ class AsistenResource extends Resource
     protected static string | UnitEnum | null $navigationGroup  = 'Manajemen Asisten';
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $recordTitleAttribute = 'Asisten Laboratorium';
+    protected static ?string $recordTitleAttribute = 'nama';
 
     public static function form(Schema $schema): Schema
     {

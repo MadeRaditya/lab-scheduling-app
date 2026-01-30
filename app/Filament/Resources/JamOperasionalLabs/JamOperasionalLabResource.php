@@ -22,7 +22,7 @@ class JamOperasionalLabResource extends Resource
     protected static string | UnitEnum | null $navigationGroup  = 'Data Master';
     protected static ?int $navigationSort = 5;
 
-    protected static ?string $recordTitleAttribute = 'Jam Operasional Lab';
+    protected static ?string $recordTitleAttribute = 'hari';
 
     public static function form(Schema $schema): Schema
     {

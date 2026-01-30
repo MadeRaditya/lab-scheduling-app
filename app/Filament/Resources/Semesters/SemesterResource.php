@@ -22,7 +22,7 @@ class SemesterResource extends Resource
     protected static string | UnitEnum | null $navigationGroup  = 'Data Master';
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $recordTitleAttribute = 'Semester';
+    protected static ?string $recordTitleAttribute = 'nama_semester';
 
     public static function form(Schema $schema): Schema
     {
