@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class JadwalPerHariChart extends ChartWidget
 {
-    protected ?string $heading = 'Kepadatan Jadwal Praktikum';
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
+
     protected int | string | array $columnSpan = 'full';
+    
+    protected ?string $heading = 'Kepadatan Jadwal Praktikum';
 
     protected function getData(): array
     {

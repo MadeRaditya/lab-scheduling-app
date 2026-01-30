@@ -16,7 +16,8 @@ use Illuminate\Contracts\Support\Htmlable;
 
 class JadwalHariIni extends BaseWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
+    
     protected int | string | array $columnSpan = 'full';
 
     public function getTableHeading(): string|null
