@@ -71,12 +71,39 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
         return $table
             ->query(
                 Matakuliah::query()->fromSub(
-                    Matakuliah::select('nama_mk', DB::raw('MIN(id) as id'))
+                    Matakuliah::selectRaw('nama_mk, MIN(id) as id')
                         ->groupBy('nama_mk'),
                     'matakuliahs'
                 )
             )
-            ->defaultSort('nama_mk', 'asc')
+            ->modifyQueryUsing(function (Builder $query) {
+                $asistenId = $this->record->id_asisten;
+
+                $kompetensiIds = DB::table('asisten_kompetensi')
+                    ->where('id_asisten', $asistenId)
+                    ->pluck('id_kompetensi');
+
+                $query->whereExists(function ($q) use ($kompetensiIds) {
+                    $q->select(DB::raw(1))
+                        ->from('matakuliah_kompetensi')
+                        ->whereColumn('matakuliah_kompetensi.matakuliah_id', 'matakuliahs.id')
+                        ->whereIn('matakuliah_kompetensi.id_kompetensi', $kompetensiIds);
+                });
+
+                $query->selectRaw('
+                    matakuliahs.*, 
+                    (
+                        SELECT COUNT(*) 
+                        FROM asisten_matakuliah
+                        WHERE asisten_matakuliah.id_asisten = ? 
+                        AND asisten_matakuliah.matakuliah_id IN (
+                            SELECT id FROM matakuliahs as m2 WHERE m2.nama_mk = matakuliahs.nama_mk
+                        )
+                    ) as is_verified
+                ', [$asistenId]);
+
+                $query->orderByDesc('is_verified')->orderBy('nama_mk');
+            })
             ->heading('Daftar Mata Kuliah Tersedia')
             ->description('Klik tombol aksi untuk memverifikasi asisten pada SELURUH kelas mata kuliah tersebut.')
             ->columns([
@@ -118,11 +145,6 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
                     ->label('Verifikasi Semua')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Verifikasi Kualifikasi')
-                    ->modalDescription(fn (Matakuliah $mk) =>
-                        "Apakah Anda yakin ingin memberikan kualifikasi untuk mata kuliah '{$mk->nama_mk}'?"
-                    )
                     ->visible(function (Matakuliah $mk) {
                         $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id');
 
@@ -149,8 +171,6 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
                     ->label('Hapus Kualifikasi')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->requiresConfirmation()
-                    ->modalDescription('Ini akan menghapus akses asisten dari seluruh kelas mata kuliah ini.')
                     ->visible(fn (Matakuliah $mk) =>
                         DB::table('asisten_matakuliah')
                             ->where('id_asisten', $this->record->id_asisten)
@@ -170,18 +190,6 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
                             ->success()
                             ->send();
                     }),
-            ])
-            ->modifyQueryUsing(function (Builder $query) {
-                $kompetensiIds = DB::table('asisten_kompetensi')
-                    ->where('id_asisten', $this->record->id_asisten)
-                    ->pluck('id_kompetensi');
-
-                $query->whereExists(function ($q) use ($kompetensiIds) {
-                    $q->select(DB::raw(1))
-                        ->from('matakuliah_kompetensi')
-                        ->whereColumn('matakuliah_kompetensi.matakuliah_id', 'matakuliahs.id')
-                        ->whereIn('matakuliah_kompetensi.id_kompetensi', $kompetensiIds);
-                });
-            });
+            ]);
     }
 }
