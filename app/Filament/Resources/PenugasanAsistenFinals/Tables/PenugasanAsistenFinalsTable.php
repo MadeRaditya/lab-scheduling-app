@@ -2,10 +2,8 @@
 
 namespace App\Filament\Resources\PenugasanAsistenFinals\Tables;
 
-use App\Models\PenugasanAsistenFinal;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use App\Models\Asisten;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -14,64 +12,59 @@ class PenugasanAsistenFinalsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc') 
+            ->query(
+                Asisten::query()
+                    ->whereHas('penugasanAsistenFinals') 
+                    ->withCount('penugasanAsistenFinals') 
+            )
+            ->defaultSort('penugasan_asisten_finals_count', 'desc') 
+            ->recordUrl(null)
             ->columns([
-                TextColumn::make('jadwalFinal.matakuliah.nama_mk')
-                    ->label('Mata Kuliah')
-                    ->description(fn (PenugasanAsistenFinal $record) => 
-                        "{$record->jadwalFinal->matakuliah->kode_mk} ({$record->jadwalFinal->matakuliah->kelas}) - {$record->jadwalFinal->matakuliah->dosen}"
-                    )
-                    ->wrap()
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('asisten.nama')
+                TextColumn::make('nama')
                     ->label('Nama Asisten')
-                    ->sortable()
-                    ->searchable(),
+                    ->description(fn (Asisten $record) => $record->npm)
+                    ->searchable()
+                    ->sortable(),
 
-                TextColumn::make('asisten.kompetensis.nama_kompetensi')
-                    ->label("Kompetensi Asisten")
+                TextColumn::make('jurusan')
+                    ->label('Jurusan')
                     ->badge()
-                    ->color("success")
+                    ->color('info')
+                    ->sortable(),
+
+                TextColumn::make('penugasan_asisten_finals_count')
+                    ->label('Total Kelas')
+                    ->badge()
+                    ->color(fn ($state) => $state > 5 ? 'danger' : ($state > 2 ? 'warning' : 'success'))
+                    ->sortable(),
+
+                TextColumn::make('penugasanAsistenFinals.jadwalFinal.matakuliah.nama_mk')
+                    ->label('Mata Kuliah Diampu')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->expandableLimitedList()
-                    ->searchable(), 
-
-                TextColumn::make('skor_kecocokan')
-                    ->label('Skor')
-                    ->numeric()
-                    ->sortable()
                     ->badge()
-                    ->color(fn ($state) => $state > 80 ? 'success' : ($state > 50 ? 'warning' : 'danger')),
-
-                TextColumn::make('peran')
-                    ->badge()
-                    ->color('info')
-                    ->searchable(),
-
-                TextColumn::make('status_kehadiran')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Hadir' => 'success',
-                        'Izin' => 'warning',
-                        'Alpha' => 'danger',
-                        'Terjadwal' => 'gray',
-                        default => 'gray',
+                    ->color('gray'),
+                
+                TextColumn::make('avg_skor')
+                    ->label('Rata-rata Skor')
+                    ->state(function (Asisten $record) {
+                        return number_format($record->penugasanAsistenFinals()->avg('skor_kecocokan'), 1);
                     })
-                    ->searchable(),
+                    ->badge()
+                    ->color('success'),
             ])
-            ->filters([
-                //
+            ->actions([
+                Action::make('lihat_jadwal')
+                    ->label('Detail Jadwal')
+                    ->icon('heroicon-m-eye')
+                    ->modalHeading(fn (Asisten $record) => "Jadwal Asistensi: {$record->nama}")
+                    ->modalSubmitAction(false)
+                    ->modalContent(fn (Asisten $record) => view(
+                        'filament.resources.penugasan-asisten-finals.modal-detail-jadwal', 
+                        ['asisten' => $record]
+                    )),
             ])
-            ->recordActions([
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]); 
     }
 }

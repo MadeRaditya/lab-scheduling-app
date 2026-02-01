@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources\PreferensiJadwalAsistens\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use App\Models\Asisten;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -13,40 +12,52 @@ class PreferensiJadwalAsistensTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->query(
+                Asisten::query()
+                    ->whereHas('preferensiJadwalAsistens') 
+                    ->withCount('preferensiJadwalAsistens') 
+            )
+            ->defaultSort('preferensi_jadwal_asistens_count', 'desc')
+            ->recordUrl(null) 
             ->columns([
-                TextColumn::make('asisten.nama')
+                TextColumn::make('nama')
+                    ->label('Nama Asisten')
+                    ->description(fn (Asisten $record) => $record->npm)
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('semester.nama_semester')
+
+                TextColumn::make('jurusan')
+                    ->label('Jurusan')
+                    ->badge()
+                    ->color('info')
                     ->sortable(),
-                TextColumn::make('hari')
-                    ->searchable(),
-                TextColumn::make('jam_mulai')
-                    ->time()
+
+                TextColumn::make('preferensi_jadwal_asistens_count')
+                    ->label('Slot Tersedia')
+                    ->badge()
+                    ->color(fn ($state) => $state > 20 ? 'success' : ($state > 10 ? 'warning' : 'danger'))
                     ->sortable(),
-                TextColumn::make('jam_selesai')
-                    ->time()
-                    ->sortable(),
-                TextColumn::make('tingkat_preferensi')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('preferensiJadwalAsistens.hari')
+                    ->label('Hari Ketersediaan')
+                    ->badge()
+                    ->separator(',')
+                    ->limitList(4)
+                    ->color('gray'),
             ])
             ->filters([
-                //
             ])
-            ->recordActions([
-                EditAction::make(),
+            ->actions([
+                Action::make('lihat_preferensi')
+                    ->label('Detail Preferensi')
+                    ->icon('heroicon-m-clock')
+                    ->modalHeading(fn (Asisten $record) => "Preferensi Waktu: {$record->nama}")
+                    ->modalSubmitAction(false)
+                    ->modalContent(fn (Asisten $record) => view(
+                        'filament.resources.preferensi-jadwal-asistens.modal-detail-preferensi', 
+                        ['asisten' => $record]
+                    )),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]); 
     }
 }
