@@ -14,6 +14,7 @@ class GreedyScheduler
 {
     protected array $assignedHistory = [];
     protected array $assignmentCounts = [];
+    
     protected array $previousSessionAssignments = [];
 
     public function generate(int $idSemester): array
@@ -84,14 +85,14 @@ class GreedyScheduler
         return JadwalLab::with(['matakuliah.kompetensis', 'ruangan', 'semester'])
             ->where('id_semester', $idSemester)
             ->orderBy('hari')
-            ->orderBy('id_ruangan')
+            ->orderBy('id_ruangan') 
             ->orderBy('jam_mulai')
             ->get();
     }
 
     private function loadAsistens(int $idSemester)
     {
-        return Asisten::with(['matakuliahs', 'kompetensis', 'preferensiJadwalAsistens', 'kendalaAsistens'])
+        return Asisten::with(['matakuliahs', 'kompetensis', 'preferensiJadwalAsistens', 'kendalaAsistens', 'asistenSemesters'])
             ->where('status_aktif', true)
             ->whereHas('asistenSemesters', function ($q) use ($idSemester) {
                 $q->where('id_semester', $idSemester)->where('status', 'Aktif');
@@ -118,15 +119,17 @@ class GreedyScheduler
 
         $chainKey = $this->getChainKey($jadwal);
         $previousAssistants = $this->previousSessionAssignments[$chainKey] ?? null;
-
+        
         if ($previousAssistants) {
             $jadwalFinal->update(['catatan' => 'Sesi Lanjutan (4 SKS): Menggunakan asisten sesi sebelumnya.']);
 
             foreach ($previousAssistants as $prevData) {
                 $asisten = $asistens->firstWhere('id_asisten', $prevData['id']);
                 if ($asisten) {
-                    $this->assignAsisten($jadwalFinal, $asisten, $prevData['score']);
-                    $assignedAsistens[] = ['nama' => $asisten->nama, 'score' => $prevData['score']];
+                    $consistentScore = $prevData['score']; 
+                    $this->assignAsisten($jadwalFinal, $asisten, $consistentScore); 
+                    
+                    $assignedAsistens[] = ['nama' => $asisten->nama, 'score' => $consistentScore];
                     $assignedCount++;
                 }
             }
@@ -146,20 +149,23 @@ class GreedyScheduler
             $top = $ranked->take($remainingNeeded);
 
             foreach ($top as $rank) {
-                $this->assignAsisten($jadwalFinal, $rank['asisten'], $rank['display_score']);
+                $finalDisplayScore = $rank['display_score'];
+                
+                $this->assignAsisten($jadwalFinal, $rank['asisten'], $finalDisplayScore);
+                
                 $assignedAsistens[] = [
                     'nama' => $rank['asisten']->nama,
-                    'score' => $rank['display_score'],
+                    'score' => $finalDisplayScore,
                 ];
                 $assignedCount++;
             }
         }
 
-        $currentAssignedData = collect($assignedAsistens)->map(function ($a) use ($asistens) {
-            return [
-                'id' => $asistens->firstWhere('nama', $a['nama'])->id_asisten,
-                'score' => $a['score']
-            ];
+        $currentAssignedData = collect($assignedAsistens)->map(function($a) use ($asistens) {
+             return [
+                 'id' => $asistens->firstWhere('nama', $a['nama'])->id_asisten,
+                 'score' => $a['score']
+             ];
         })->toArray();
 
         $this->previousSessionAssignments[$chainKey] = $currentAssignedData;
@@ -205,8 +211,10 @@ class GreedyScheduler
             $jadwalFinal->jam_selesai
         );
 
-        $this->assignmentCounts[$asisten->id_asisten] =
-            ($this->assignmentCounts[$asisten->id_asisten] ?? 0) + 1;
+        if (!isset($this->assignmentCounts[$asisten->id_asisten])) {
+            $this->assignmentCounts[$asisten->id_asisten] = 0;
+        }
+        $this->assignmentCounts[$asisten->id_asisten]++; 
     }
 
     private function rankAsistensForJadwal($jadwal, $asistens, bool $ignorePersonalConflicts = false)
@@ -217,47 +225,57 @@ class GreedyScheduler
 
         foreach ($asistens as $asisten) {
             $isStrictVerified = $asisten->matakuliahs->contains('id', $jadwal->matakuliah_id);
-            $isSoftVerified = !$isStrictVerified &&
-                $asisten->matakuliahs->contains('nama_mk', $namaMkTarget);
-
-            $isSkillMatched = !$isStrictVerified && !$isSoftVerified && !empty($requiredSkillIds) &&
-                $asisten->kompetensis->contains(fn($k) => in_array($k->id_kompetensi, $requiredSkillIds));
+            $isSoftVerified = false;
+            if (!$isStrictVerified) {
+                $isSoftVerified = $asisten->matakuliahs->contains('nama_mk', $namaMkTarget);
+            }
+            $isSkillMatched = false;
+            if (!$isStrictVerified && !$isSoftVerified && !empty($requiredSkillIds)) {
+                $isSkillMatched = $asisten->kompetensis->contains(function ($k) use ($requiredSkillIds) {
+                    return in_array($k->id_kompetensi, $requiredSkillIds);
+                });
+            }
 
             if (!$isStrictVerified && !$isSoftVerified && !$isSkillMatched) continue;
             if ($this->isAsistenBusy($asisten->id_asisten, $jadwal->hari, $jadwal->jam_mulai, $jadwal->jam_selesai)) continue;
             if (!$ignorePersonalConflicts && $this->hasPersonalConflict($asisten, $jadwal)) continue;
 
-            $baseScore = 20;
+            $baseScore = 20; 
 
-            if ($isStrictVerified) $baseScore += 60;
-            elseif ($isSoftVerified) $baseScore += 45;
-            elseif ($isSkillMatched) $baseScore += 30;
+            if ($isStrictVerified) $baseScore += 60;        
+            elseif ($isSoftVerified) $baseScore += 45;      
+            elseif ($isSkillMatched) $baseScore += 30;      
 
             $prefScore = $this->calculatePreferenceScore($asisten, $jadwal);
             if ($prefScore == 0 && !$ignorePersonalConflicts) continue;
+            $competencyScore = $baseScore + $prefScore; 
 
-            $competencyScore = $baseScore + $prefScore;
-
-            $angkatan = (int) substr($asisten->npm, 0, 2);
-            $yearsActive = max(0, (int) date('y') - $angkatan);
-            $competencyScore += $yearsActive * 2;
+            $semesterCount = $asisten->asistenSemesters->where('status', 'Aktif')->count();
+            $experienceBonus = $semesterCount * 3; 
+            $competencyScore += $experienceBonus;
 
             if ($ignorePersonalConflicts) $competencyScore -= 15;
 
             $sortingScore = $competencyScore;
             $currentLoad = $this->assignmentCounts[$asisten->id_asisten] ?? 0;
+            
+            if ($currentLoad >= 16) {
+                $sortingScore -= 1000; 
+            } elseif ($currentLoad >= 12) {
+                $sortingScore -= 50;   
+            } elseif ($currentLoad >= 8) {
+                $sortingScore -= 20;   
+            } elseif ($currentLoad >= 4) {
+                $sortingScore -= 5;    
+            }
 
-            if ($currentLoad >= 16) $sortingScore -= 1000;
-            elseif ($currentLoad >= 12) $sortingScore -= 50;
-            elseif ($currentLoad >= 8) $sortingScore -= 20;
-            elseif ($currentLoad >= 4) $sortingScore -= 5;
-
-            $finalDisplayScore = $competencyScore - ($currentLoad * 0.5);
+            $fatiguePenalty = $currentLoad * 0.5; 
+            $finalDisplayScore = $competencyScore - $fatiguePenalty;
 
             $ranked->push([
                 'asisten' => $asisten,
-                'sorting_score' => $sortingScore,
-                'display_score' => $finalDisplayScore,
+                'sorting_score' => $sortingScore,        
+                'display_score' => $finalDisplayScore,   
             ]);
         }
 
@@ -269,20 +287,23 @@ class GreedyScheduler
         $pref = $asisten->preferensiJadwalAsistens
             ->where('hari', $jadwal->hari)
             ->where('id_semester', $jadwal->id_semester)
-            ->filter(fn($p) => $this->checkTimeOverlap(
-                $p->jam_mulai,
-                $p->jam_selesai,
-                $jadwal->jam_mulai,
-                $jadwal->jam_selesai
-            ))
+            ->filter(function ($p) use ($jadwal) {
+                return $this->checkTimeOverlap(
+                    $p->jam_mulai,
+                    $p->jam_selesai,
+                    $jadwal->jam_mulai,
+                    $jadwal->jam_selesai
+                );
+            })
             ->first();
 
         if (!$pref) return 0;
 
         return match ($pref->tingkat_preferensi) {
-            'Prioritas Utama' => 20,
+            'Prioritas Utama' => 20, 
             'Bersedia' => 15,
             'Cadangan' => 5,
+            'Tidak Bersedia' => 0,
             default => 0,
         };
     }
@@ -295,20 +316,16 @@ class GreedyScheduler
     private function hasPersonalConflict($asisten, $jadwal): bool
     {
         $today = Carbon::today();
-
         foreach ($asisten->kendalaAsistens as $kendala) {
             if ($kendala->hari != $jadwal->hari || $kendala->status != 'Aktif') continue;
-
             if ($kendala->tanggal_mulai && $kendala->tanggal_selesai) {
-                if ($today->between(
-                    Carbon::parse($kendala->tanggal_mulai),
-                    Carbon::parse($kendala->tanggal_selesai)
-                )) return true;
+                $startDate = Carbon::parse($kendala->tanggal_mulai);
+                $endDate = Carbon::parse($kendala->tanggal_selesai);
+                if ($today->between($startDate, $endDate)) return true;
             } else {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -324,14 +341,11 @@ class GreedyScheduler
     private function isAsistenBusy($asistenId, $hari, $start, $end): bool
     {
         if (!isset($this->assignedHistory[$asistenId])) return false;
-
         foreach ($this->assignedHistory[$asistenId] as $slot) {
-            if ($slot['hari'] == $hari &&
-                $this->checkTimeOverlap($slot['start'], $slot['end'], $start, $end)) {
-                return true;
+            if ($slot['hari'] == $hari) {
+                if ($this->checkTimeOverlap($slot['start'], $slot['end'], $start, $end)) return true;
             }
         }
-
         return false;
     }
 }
