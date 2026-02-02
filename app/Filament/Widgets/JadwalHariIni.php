@@ -31,7 +31,7 @@ class JadwalHariIni extends BaseWidget
         return $table
             ->query(
                 JadwalFinal::query()
-                    ->with(['matakuliah', 'ruangan', 'semester']) // Eager load biar ringan
+                    ->with(['matakuliah', 'ruangan', 'semester']) 
                     ->whereHas('semester', function ($q) {
                         $q->where('status', SemesterStatus::Aktif);
                     })

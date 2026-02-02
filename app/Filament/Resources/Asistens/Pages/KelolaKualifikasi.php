@@ -6,6 +6,8 @@ use App\Filament\Resources\Asistens\AsistenResource;
 use App\Models\Asisten;
 use App\Models\Matakuliah;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -19,6 +21,7 @@ use Filament\Tables\Table;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class KelolaKualifikasi extends Page implements HasSchemas, HasTable
@@ -147,24 +150,16 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
                     ->color('success')
                     ->visible(function (Matakuliah $mk) {
                         $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id');
-
                         $count = DB::table('asisten_matakuliah')
                             ->where('id_asisten', $this->record->id_asisten)
                             ->whereIn('matakuliah_id', $ids)
                             ->count();
-
                         return $count < $ids->count();
                     })
                     ->action(function (Matakuliah $mk) {
                         $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id')->toArray();
-
                         $this->record->matakuliahs()->syncWithoutDetaching($ids);
-
-                        Notification::make()
-                            ->title('Berhasil Diverifikasi')
-                            ->body('Asisten kini terverifikasi untuk ' . count($ids) . " kelas {$mk->nama_mk}.")
-                            ->success()
-                            ->send();
+                        Notification::make()->title('Berhasil Diverifikasi')->success()->send();
                     }),
 
                 Action::make('batal_verifikasi')
@@ -174,22 +169,54 @@ class KelolaKualifikasi extends Page implements HasSchemas, HasTable
                     ->visible(fn (Matakuliah $mk) =>
                         DB::table('asisten_matakuliah')
                             ->where('id_asisten', $this->record->id_asisten)
-                            ->whereIn(
-                                'matakuliah_id',
-                                Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id')
-                            )
+                            ->whereIn('matakuliah_id', Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id'))
                             ->exists()
                     )
                     ->action(function (Matakuliah $mk) {
                         $ids = Matakuliah::where('nama_mk', $mk->nama_mk)->pluck('id')->toArray();
-
                         $this->record->matakuliahs()->detach($ids);
-
-                        Notification::make()
-                            ->title('Kualifikasi Dihapus')
-                            ->success()
-                            ->send();
+                        Notification::make()->title('Kualifikasi Dihapus')->success()->send();
                     }),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('verify_selected')
+                        ->label('Verifikasi Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $names = $records->pluck('nama_mk');
+                            
+                            $allIds = Matakuliah::whereIn('nama_mk', $names)->pluck('id')->toArray();
+                            
+                            $this->record->matakuliahs()->syncWithoutDetaching($allIds);
+                            
+                            Notification::make()
+                                ->title('Data Terpilih Berhasil Diverifikasi')
+                                ->success()
+                                ->send();
+                        }),
+
+                    BulkAction::make('unverify_selected')
+                        ->label('Hapus Kualifikasi Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $names = $records->pluck('nama_mk');
+                            $allIds = Matakuliah::whereIn('nama_mk', $names)->pluck('id')->toArray();
+                            
+                            $this->record->matakuliahs()->detach($allIds);
+                            
+                            Notification::make()
+                                ->title('Kualifikasi Data Terpilih Dihapus')
+                                ->success()
+                                ->send();
+                        }),
+                ]),
             ]);
     }
 }

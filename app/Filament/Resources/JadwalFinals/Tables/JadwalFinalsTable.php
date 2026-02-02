@@ -19,7 +19,13 @@ class JadwalFinalsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('hari', 'desc')
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->orderByRaw("
+                        FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')
+                    ")
+                    ->orderBy('jam_mulai', 'asc');
+            })
+
             ->columns([
                 TextColumn::make("semester.nama_semester")
                     ->toggleable(isToggledHiddenByDefault: true),

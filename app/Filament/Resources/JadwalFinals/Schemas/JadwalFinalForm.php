@@ -12,9 +12,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TimePicker;
-use Filament\Schemas\Components\Utilities\Get as UtilitiesGet;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Closure;
+use Filament\Schemas\Components\Utilities\Get;
 
 class JadwalFinalForm
 {
@@ -40,27 +41,62 @@ class JadwalFinalForm
                         });
                     }),
 
+                
+                
                 Select::make('hari')
                     ->options(JamHari::class)
                     ->required()
-                    ->live(),
+                    ->live() 
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('id_ruangan', null)),
 
                 TimePicker::make('jam_mulai')
                     ->seconds(false)
                     ->required()
-                    ->live(),
+                    ->live()
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('id_ruangan', null)),
 
                 TimePicker::make('jam_selesai')
                     ->seconds(false)
                     ->required()
-                    ->live(),
+                    ->live()
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('id_ruangan', null))
+                    ->rules([
+                        fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                            if ($get('jam_mulai') && $value <= $get('jam_mulai')) {
+                                $fail('Jam selesai harus lebih akhir dari jam mulai.');
+                            }
+                        },
+                    ]),
 
                 Select::make('id_ruangan')
-                    ->label('Ruangan (Tersedia)')
+                    ->label('Ruangan (Otomatis Filter)')
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->options(function (UtilitiesGet $get, ?JadwalFinal $record) {
+                    ->rules([
+                        fn (Get $get, ?JadwalFinal $record): Closure => function (string $attribute, $value, Closure $fail) use ($get, $record) {
+                            $hari = $get('hari');
+                            $mulai = $get('jam_mulai');
+                            $selesai = $get('jam_selesai');
+
+                            if (!$hari || !$mulai || !$selesai) return;
+
+                            $conflict = JadwalFinal::where('id_ruangan', $value)
+                                ->where('hari', $hari)
+                                ->where(function ($query) use ($mulai, $selesai) {
+                                    $query->where('jam_mulai', '<', $selesai)
+                                          ->where('jam_selesai', '>', $mulai);
+                                })
+                                ->when($record, fn($q) => $q->where('id_final', '!=', $record->id_final)) 
+                                ->where('status', '!=', 'Dibatalkan')
+                                ->first();
+
+                            if ($conflict) {
+                                $fail("Ruangan bentrok dengan mata kuliah: {$conflict->matakuliah->nama_mk} ({$conflict->jam_mulai} - {$conflict->jam_selesai}).");
+                            }
+                        },
+                    ])
+                    ->options(function (Get $get, ?JadwalFinal $record) {
                         $hari = $get('hari');
                         $mulai = $get('jam_mulai');
                         $selesai = $get('jam_selesai');
@@ -74,7 +110,8 @@ class JadwalFinalForm
                                   ->where(function ($qTime) use ($mulai, $selesai) {
                                       $qTime->where('jam_mulai', '<', $selesai)
                                             ->where('jam_selesai', '>', $mulai);
-                                  });
+                                  })
+                                  ->where('status', '!=', 'Dibatalkan');
 
                             if ($record) {
                                 $query->where('id_final', '!=', $record->id_final);
@@ -89,7 +126,7 @@ class JadwalFinalForm
 
                 TextInput::make('metode_penjadwalan')
                     ->required()
-                    ->default('Manual Edit'),
+                    ->default('Manual Edit (Revisi SKS)'),
 
                 Select::make('status')
                     ->options(['Aktif' => 'Aktif', 'Selesai' => 'Selesai', 'Dibatalkan' => 'Dibatalkan'])

@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\CalonAsistens\Tables;
 
+use App\Filament\Exports\CalonAsistenExporter;
 use App\Models\CalonAsisten;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -19,8 +21,8 @@ class CalonAsistensTable
     {
         return $table
             ->columns([
-                TextColumn::make('nama')->searchable(),
-                TextColumn::make('npm')->searchable(),
+                TextColumn::make('nama')->searchable()->sortable(),
+                TextColumn::make('npm')->searchable()->sortable(),
                 TextColumn::make('token')
                     ->copyable()
                     ->badge()
@@ -50,6 +52,13 @@ class CalonAsistensTable
                             ->send();
                     })
                     ->visible(fn(CalonAsisten $record) => !$record->is_registered),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(CalonAsistenExporter::class)
+                    ->label('Export Data')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
