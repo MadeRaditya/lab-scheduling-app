@@ -5,7 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\JadwalFinal;
 use App\Models\Semester;
 use App\Enums\SemesterStatus;
-use App\Filament\Resources\JadwalFinals\JadwalFinalResource; 
+use App\Filament\Resources\JadwalFinals\JadwalFinalResource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -17,7 +17,7 @@ use Illuminate\Contracts\Support\Htmlable;
 class JadwalHariIni extends BaseWidget
 {
     protected static ?int $sort = 4;
-    
+
     protected int | string | array $columnSpan = 'full';
 
     public function getTableHeading(): string|null
@@ -25,13 +25,13 @@ class JadwalHariIni extends BaseWidget
         Carbon::setLocale('id');
         return 'Jadwal Praktikum Hari Ini (' . Carbon::now()->translatedFormat('l, d F Y') . ')';
     }
-
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 JadwalFinal::query()
-                    ->with(['matakuliah', 'ruangan', 'semester']) 
+                    ->with(['matakuliah', 'ruangan', 'semester'])
+                    ->withCount('penugasanAsistenFinals')
                     ->whereHas('semester', function ($q) {
                         $q->where('status', SemesterStatus::Aktif);
                     })
@@ -41,19 +41,19 @@ class JadwalHariIni extends BaseWidget
             ->columns([
                 TextColumn::make('jam_mulai')
                     ->label('Jam')
-                    ->formatStateUsing(fn ($record) => substr($record->jam_mulai, 0, 5) . ' - ' . substr($record->jam_selesai, 0, 5))
+                    ->formatStateUsing(fn($record) => substr($record->jam_mulai, 0, 5) . ' - ' . substr($record->jam_selesai, 0, 5))
                     ->badge()
                     ->color('info'),
 
                 TextColumn::make('matakuliah.nama_mk')
                     ->label('Mata Kuliah')
-                    ->description(fn (JadwalFinal $record) => "{$record->matakuliah->kode_mk} - {$record->matakuliah->dosen}")
+                    ->description(fn(JadwalFinal $record) => "{$record->matakuliah->kode_mk} - {$record->matakuliah->dosen}")
                     ->searchable(),
 
                 TextColumn::make('matakuliah.kelas')
                     ->label('Kelas')
                     ->badge()
-                    ->color('warning') 
+                    ->color('warning')
                     ->alignCenter(),
 
                 TextColumn::make('ruangan.nama_ruangan')
@@ -61,14 +61,13 @@ class JadwalHariIni extends BaseWidget
                     ->badge()
                     ->color('success'),
 
-                TextColumn::make('penugasanAsistenFinals_count')
-                    ->counts('penugasanAsistenFinals')
+                TextColumn::make('penugasan_asisten_finals_count')
                     ->label('Jml Asisten')
                     ->alignCenter(),
-                
+
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Aktif' => 'success',
                         'Dibatalkan' => 'danger',
                         'Selesai' => 'gray',
@@ -79,15 +78,21 @@ class JadwalHariIni extends BaseWidget
                 Action::make('open')
                     ->label('Detail')
                     ->icon('heroicon-m-eye')
-                    ->url(fn (JadwalFinal $record): string => JadwalFinalResource::getUrl('edit', ['record' => $record])),
+                    ->url(fn(JadwalFinal $record): string => JadwalFinalResource::getUrl('edit', ['record' => $record])),
             ])
             ->paginated(false);
     }
 
-    protected function getHariIndonesia($dayInEnglish) {
+    protected function getHariIndonesia($dayInEnglish)
+    {
         $days = [
-            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
-            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+            'Sunday' => 'Minggu'
         ];
 
         return $days[$dayInEnglish] ?? $dayInEnglish;
