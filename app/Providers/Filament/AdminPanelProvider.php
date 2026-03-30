@@ -24,6 +24,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -61,6 +63,17 @@ class AdminPanelProvider extends PanelProvider
                 JadwalPerHariChart::class,
                 JadwalHariIni::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::FOOTER,
+                fn (): string => Blade::render('
+                    <div class="text-center text-sm text-gray-500 dark:text-gray-400 py-4">
+                        &copy; ' . date('Y') . ' Lab Darmajaya. Developed by 
+                        <a href="https://github.com/MadeRaditya" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">
+                            Made Raditya
+                        </a>.
+                    </div>
+                ')
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
