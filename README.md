@@ -7,6 +7,24 @@
 
 Sistem Informasi Penjadwalan Asisten Laboratorium untuk IIB Darmajaya. Aplikasi ini dirancang untuk mengotomatisasi penugasan asisten laboratorium pada jadwal praktikum menggunakan **Algoritma Greedy**, meminimalisir bentrok jadwal, dan mempermudah manajemen data laboratorium.
 
+---
+
+## 📸 Preview Aplikasi
+
+<details open>
+<summary><b>Klik untuk melihat/menyembunyikan screenshot</b></summary>
+<br>
+
+| Halaman Utama (Landing Page) | Dashboard Admin (Filament) |
+| :---: | :---: |
+| <img src="docs/screenshots/homepage.png" alt="Landing Page" width="400" style="border-radius: 8px;"> | <img src="docs/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="400" style="border-radius: 8px;"> |
+| **Generate Jadwal (Algoritma Greedy)** | **Dashboard Asisten (User Panel)** |
+| <img src="docs/screenshots/admin-jadwal.png" alt="Admin Jadwal" width="400" style="border-radius: 8px;"> | <img src="docs/screenshots/asisten-dashboard.png" alt="Asisten Dashboard" width="400" style="border-radius: 8px;"> |
+
+</details>
+
+---
+
 ## ✨ Fitur Utama
 
 ### 👨‍💼 Panel Admin (Koordinator Lab)
