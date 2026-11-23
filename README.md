@@ -63,7 +63,7 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi di lingkungan lokal:
 
 1. **Clone Repository**
    ```bash
-   git clone [https://github.com/MadeRaditya/lab-scheduling-app.git](https://github.com/MadeRaditya/lab-scheduling-app.git)
+   git clone https://github.com/MadeRaditya/lab-scheduling-app.git
    cd lab-scheduling-app
    ```
 
